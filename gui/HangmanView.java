@@ -13,6 +13,7 @@ public class HangmanView {
     private JLabel wordLabel;
     private JLabel livesLabel;
     private JLabel hangmanImage;
+    private ImageIcon[] hangmanStages;
     private JPanel keyboardPanel;
 
     public JPanel createHangmanPanel() {
@@ -63,6 +64,8 @@ public class HangmanView {
         hangmanImage = new JLabel("HANGMAN IMAGE", SwingConstants.CENTER);
         hangmanImage.setOpaque(true);
         hangmanImage.setBackground(Color.LIGHT_GRAY);
+        
+        loadImages();
 
         right.add(hangmanImage, BorderLayout.CENTER);
 
@@ -132,13 +135,26 @@ public class HangmanView {
         return main;
     }
 
+    // ---------- loadImages ----------
+
+    private void loadImages(){
+        hangmanStages = new ImageIcon[7];
+        for (int i = 0; i<7; i++){
+            hangmanStages[i] = new ImageIcon("images/hangman" + i + ".png");
+        }
+
+        hangmanImage.setIcon(hangmanStages[0]);
+        hangmanImage.setText("");
+    }
+
     // ---------- UPDATE UI ----------
     private void updateUI() {
         wordLabel.setText(game.getGuessedWord());
         livesLabel.setText("Lives: " + game.getRemainingAttempts());
 
         // Later: swap images based on lives here
-        hangmanImage.setText("Stage: " + (6 - game.getRemainingAttempts()));
+        int stage = 6 - game.getRemainingAttempts();
+        hangmanImage.setIcon(hangmanStages[stage]);
     }
 
     // ---------- GAME OVER ----------
