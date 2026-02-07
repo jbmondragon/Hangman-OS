@@ -61,9 +61,9 @@ public class HangmanView {
         right.setBackground(new Color(0, 70, 140));
         right.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
-        hangmanImage = new JLabel("HANGMAN IMAGE", SwingConstants.CENTER);
-        hangmanImage.setOpaque(true);
-        hangmanImage.setBackground(Color.LIGHT_GRAY);
+        hangmanImage = new JLabel();
+        hangmanImage.setHorizontalAlignment(SwingConstants.CENTER)
+        hangmanImage.setVerticalAlignment(SwingConstants.CENTER);
         
         loadImages();
 
@@ -135,7 +135,7 @@ public class HangmanView {
         return main;
     }
 
-    // ---------- loadImages ----------
+    // ---------- LOAD IMAGE ----------
 
     private void loadImages(){
         hangmanStages = new ImageIcon[7];
