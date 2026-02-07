@@ -1,0 +1,30 @@
+# Hangman-OS - User Manual
+Danger, danger, danger! There is danger in the Operating System and Hangman-OS needs your help. 
+Play the Classic Hangman game and defeat the viruses by correctly finding out six coded kill codes to save your operating system.
+
+##Objective
+The goal of the game is to correctly get the letters of the hidden words with only 6 tries, get six correct guesses to win the game.
+
+##Game Rules
+1. A random word is selected at the start of the game.
+2. The word displayed by using underscores (_), shows how many letters there are in the word.
+3. For each word, you only get six lives to survive.
+4. Guess incorrectly and you lose one life.
+5. Guess correctly and a letter or letters will be revealed.
+
+##Controls
+- Click on-screen or your physical keyboard to guess the letters.
+- Letters that have already been used will be unavailable.
+- Use the Restart button to start a new game.
+- Use the Home button to go back to main menu.
+
+## Win Condition
+- The player wins if they correctly and consecutively guess 6 words before their lives reach zero.
+
+## Lose Condition
+- The player loses if all lives are used.
+- A system failure screen will show if you fail to defeat the viruses.
+
+## Notes
+- Words are randomly loaded from a text file.
+- Players can input their own words to guess in the text file.
