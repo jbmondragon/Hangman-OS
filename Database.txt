@@ -1,0 +1,7 @@
+Guess
+the
+word
+secret
+animal
+true
+false
