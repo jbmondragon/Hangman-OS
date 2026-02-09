@@ -10,8 +10,7 @@ public class HangmanView {
 
     private JLabel wordLabel;
     private JLabel livesLabel;
-    private JLabel hangmanImage;
-    private ImageIcon[] hangmanStages;
+    private ImagePanel hangmanImagePanel;
     private JPanel keyboardPanel;
 
     // Hangman Game Panel
@@ -63,10 +62,11 @@ public class HangmanView {
         right.setBackground(new Color(0, 70, 140));
         right.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
-        hangmanImage = new JLabel("", SwingConstants.CENTER);
-        loadImages();
-
-        right.add(hangmanImage, BorderLayout.CENTER);
+        // Use ImagePanel instead of JLabel for the hangman image
+        hangmanImagePanel = new ImagePanel("images/S0.gif");
+        hangmanImagePanel.setOpaque(false);
+        
+        right.add(hangmanImagePanel, BorderLayout.CENTER);
         return right;
     }
 
@@ -121,21 +121,21 @@ public class HangmanView {
         return keyboard;
     }
 
-    // Load hangman images into array
-    // Mga pre insert nalang ng code here for images han nabitay na stick stick
-    private void loadImages() {
-        hangmanStages = new ImageIcon[7];
-        for (int i = 0; i < 7; i++) {
-            hangmanStages[i] = new ImageIcon("images/hangman" + i + ".png");
-        }
-        hangmanImage.setIcon(hangmanStages[0]);
-    }
-
-    // Update word, lives, and hangman image
+    // Update word, lives, and loads hangman image
     private void updateUI() {
         wordLabel.setText(game.getGuessedWord());
         livesLabel.setText("Lives: " + game.getRemainingAttempts());
-        hangmanImage.setIcon(hangmanStages[6 - game.getRemainingAttempts()]);
+        
+        String[] imageNames = {"S0.gif", "S1.gif", "S2.gif", "S3.gif", "S4.gif", "S5.gif", "S6.gif"};
+        int index = 6 - game.getRemainingAttempts();
+        
+        JPanel right = (JPanel) hangmanImagePanel.getParent();
+        right.remove(hangmanImagePanel);
+        hangmanImagePanel = new ImagePanel("images/" + imageNames[index]);
+        hangmanImagePanel.setOpaque(false);
+        right.add(hangmanImagePanel, BorderLayout.CENTER);
+        right.revalidate();
+        right.repaint();
     }
 
     // Handle end of game
