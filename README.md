@@ -1,4 +1,6 @@
-# Hangman Game
+# Hangman-OS
+
+_This project is developed by **Jake Mondragon**, **Benedict Pagba**, **Justin Magne Agaton**, and **Niel Frias**_
 
 ## Overview
 
@@ -26,7 +28,7 @@ cd Mine-Sweeper
 
 Make sure you have the Java Extension Pack installed.
 
-Navigate to the `src/` folder and open `Main.java`.
+Look for the `Main.java`.
 
 ### 3️. Run the Application
 
@@ -40,14 +42,14 @@ You can run the game by:
 - Search: Java: Export Jar.
 - Choose `Main` as the main class.
 - Select all required files.
-- A `Mine-Sweeper.jar` will be generated.
+- A `Hangman-OS.jar` will be generated.
 
 ### 5️. Run the JAR File
 
 #### Option A: Terminal
 
 ```bash
-java -jar Mine-Sweeper.jar
+java -jar Hangman-OS.jar
 ```
 
 #### Option B: GUI
