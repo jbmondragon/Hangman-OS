@@ -1,27 +1,31 @@
 import java.awt.*;
+import java.util.Random;
 import javax.swing.*;
 
 public class Home {
     JButton close;
+    Random rand = new Random();
 
     public JPanel createHome() {
-
-        // Background panel with image
+        // Background-image
+        // Note: Pa change nalang ng final na na image na gagamition
         ImagePanel background = new ImagePanel("images/image1.png");
         background.setLayout(new GridBagLayout());
 
-        // ---- POPUP PANEL ----
+        // Pop-up
         JPanel popup = new JPanel(new BorderLayout());
         popup.setPreferredSize(new Dimension(420, 260));
         popup.setBackground(new Color(230, 230, 230));
         popup.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
 
-        // ---- TITLE BAR ----
+        // Title bar hit pop-up
         JPanel titleBar = new JPanel(new BorderLayout());
         titleBar.setBackground(new Color(120, 150, 255));
 
         JLabel title = new JLabel("WARNING");
         title.setBorder(BorderFactory.createEmptyBorder(5, 8, 5, 5));
+        title.setForeground(Color.RED);
+        title.setFont(new Font("Monospaced", Font.BOLD, 16));
 
         close = new JButton("X");
         close.setFocusable(false);
@@ -36,21 +40,23 @@ public class Home {
         titleBar.add(title, BorderLayout.WEST);
         titleBar.add(close, BorderLayout.EAST);
 
-        // ---- MESSAGE ----
+        // Warning Message
         JTextArea message = new JTextArea(
-                "A VIRUS WILL INFECT YOUR\n" +
-                        "OPERATING SYSTEM!\n\n" +
-                        "CLICK PLAY TO SAVE OS.");
+                "!!! SYSTEM BREACH DETECTED !!!\n" +
+                        "ALL FILES AT RISK!\n\n" +
+                        "CLICK PLAY TO SECURE OS.");
         message.setEditable(false);
-        message.setFont(new Font("Monospaced", Font.BOLD, 12));
-        message.setBackground(new Color(245, 245, 245));
+        message.setFont(new Font("Monospaced", Font.BOLD, 14));
+        message.setBackground(new Color(0, 0, 0));
+        message.setForeground(Color.GREEN);
         message.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
         JPanel messagePanel = new JPanel(new BorderLayout());
-        messagePanel.setBackground(new Color(245, 245, 245));
+        messagePanel.setBackground(Color.BLACK);
         messagePanel.add(message, BorderLayout.CENTER);
 
-        // ---- BUTTONS ----
+        // Play and About Buttons
+        // ************************************************************************************************
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 8));
         buttonPanel.setBackground(new Color(230, 230, 230));
 
@@ -79,13 +85,13 @@ public class Home {
 
         buttonPanel.add(playButton);
         buttonPanel.add(aboutButton);
+        // ************************************************************************************************
 
-        // ---- ASSEMBLE POPUP ----
         popup.add(titleBar, BorderLayout.NORTH);
         popup.add(messagePanel, BorderLayout.CENTER);
         popup.add(buttonPanel, BorderLayout.SOUTH);
 
-        // ---- CENTER POPUP ----
+        // Pag center sa pop-up
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -95,6 +101,23 @@ public class Home {
 
         background.add(popup, gbc);
 
+        // May pa virus effect
+        Timer flickerTimer = new Timer(100, e -> {
+
+            int rTitle = 150 + rand.nextInt(106);
+            int gTitle = rand.nextInt(50);
+            int bTitle = rand.nextInt(50);
+            title.setForeground(new Color(rTitle, gTitle, bTitle));
+
+            int rMsg = 150 + rand.nextInt(106);
+            int gMsg = rand.nextInt(50);
+            int bMsg = rand.nextInt(50);
+            message.setForeground(new Color(rMsg, gMsg, bMsg));
+
+            popup.setLocation(popup.getX() + rand.nextInt(3) - 1, popup.getY() + rand.nextInt(3) - 1);
+        });
+
+        flickerTimer.start();
         return background;
     }
 }

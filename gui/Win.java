@@ -5,19 +5,17 @@ public class Win {
 
     public JPanel createWin() {
 
-        // Background panel with image
         ImagePanel background = new ImagePanel("images/image1.png");
         background.setLayout(new GridBagLayout());
 
-        // ---- POPUP PANEL ----
+        // Pop-up
         JPanel popup = new JPanel(new BorderLayout());
         popup.setPreferredSize(new Dimension(420, 260));
         popup.setBackground(new Color(230, 230, 230));
         popup.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
 
-        // ---- TITLE BAR ----
         JPanel titleBar = new JPanel(new BorderLayout());
-        titleBar.setBackground(new Color(60, 180, 90)); // green = success
+        titleBar.setBackground(new Color(60, 180, 90));
 
         JLabel title = new JLabel("SYSTEM SECURED");
         title.setBorder(BorderFactory.createEmptyBorder(5, 8, 5, 5));
@@ -35,7 +33,6 @@ public class Win {
         titleBar.add(title, BorderLayout.WEST);
         titleBar.add(close, BorderLayout.EAST);
 
-        // ---- MESSAGE ----
         JTextArea message = new JTextArea(
                 "ACCESS GRANTED\n\n" +
                         "You successfully\n" +
@@ -51,7 +48,8 @@ public class Win {
         messagePanel.setBackground(new Color(245, 245, 245));
         messagePanel.add(message, BorderLayout.CENTER);
 
-        // ---- BUTTONS ----
+        // Buttons
+        // *************************************************************************************
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 8));
         buttonPanel.setBackground(new Color(230, 230, 230));
 
@@ -80,13 +78,13 @@ public class Win {
 
         buttonPanel.add(homeButton);
         buttonPanel.add(playAgainButton);
+        // *******************************************************************************************
 
-        // ---- ASSEMBLE POPUP ----
+        // Pag assemble sa pop-up
         popup.add(titleBar, BorderLayout.NORTH);
         popup.add(messagePanel, BorderLayout.CENTER);
         popup.add(buttonPanel, BorderLayout.SOUTH);
 
-        // ---- CENTER POPUP ----
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;

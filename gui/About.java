@@ -5,23 +5,23 @@ public class About {
 
     public JPanel createAbout() {
 
-        // Background panel with image
         ImagePanel background = new ImagePanel("images/image1.png");
         background.setLayout(new GridBagLayout());
 
-        // ---- POPUP PANEL ----
+        // Pop-up
         JPanel popup = new JPanel(new BorderLayout());
         popup.setPreferredSize(new Dimension(420, 260));
         popup.setBackground(new Color(230, 230, 230));
         popup.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
 
-        // ---- TITLE BAR ----
         JPanel titleBar = new JPanel(new BorderLayout());
         titleBar.setBackground(new Color(120, 150, 255));
 
         JLabel title = new JLabel("WARNING");
+        title.setForeground(new Color(139, 0, 0));
         title.setBorder(BorderFactory.createEmptyBorder(5, 8, 5, 5));
 
+        // Logic pag gin pindot an X
         JButton close = new JButton("X");
         close.setFocusable(false);
         close.setMargin(new Insets(2, 8, 2, 8));
@@ -35,7 +35,6 @@ public class About {
         titleBar.add(title, BorderLayout.WEST);
         titleBar.add(close, BorderLayout.EAST);
 
-        // ---- MESSAGE ----
         JTextArea message = new JTextArea(
                 "HELP!!!\nTHE OPERATING SYSTEM IS UNDER ATTACK\n" +
                         "AND THE VIRUS CAN ONLY BE DEFEATED\n\n" +
@@ -43,14 +42,16 @@ public class About {
                         "YOU ONLY HAVE 6 TRIES\nGOODLUCK!!!\n\n");
         message.setEditable(false);
         message.setFont(new Font("Monospaced", Font.BOLD, 12));
-        message.setBackground(new Color(245, 245, 245));
+        message.setForeground(Color.RED);
+        message.setBackground(Color.BLACK);
         message.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
         JPanel messagePanel = new JPanel(new BorderLayout());
         messagePanel.setBackground(new Color(245, 245, 245));
         messagePanel.add(message, BorderLayout.CENTER);
 
-        // ---- BUTTONS ----
+        // Buttons
+        // ************************************************************************************************************
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 8));
         buttonPanel.setBackground(new Color(230, 230, 230));
 
@@ -80,12 +81,13 @@ public class About {
         buttonPanel.add(homeButton);
         buttonPanel.add(exitButton);
 
-        // ---- ASSEMBLE POPUP ----
+        // ************************************************************************************************************
+
+        // Pag assemble sa pop-up
         popup.add(titleBar, BorderLayout.NORTH);
         popup.add(messagePanel, BorderLayout.CENTER);
         popup.add(buttonPanel, BorderLayout.SOUTH);
 
-        // ---- CENTER POPUP ----
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;

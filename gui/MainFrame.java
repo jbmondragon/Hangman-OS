@@ -1,4 +1,5 @@
 import java.awt.CardLayout;
+import java.awt.Color;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
@@ -23,7 +24,8 @@ public class MainFrame extends JFrame {
     }
 
     private void setupFrame() {
-        setTitle("Board yarn");
+        setTitle("Hangman-OS");
+        setBackground(Color.BLACK);
         setSize(1000, 800);
         setLocationRelativeTo(null);
         setResizable(false);
@@ -52,11 +54,12 @@ public class MainFrame extends JFrame {
 
         setContentPane(cardPanel);
 
-        // Show opening first
+        // First Card
         cardLayout.show(cardPanel, OPENING);
         startDelayedTransition(WARNING, 2000);
     }
 
+    // Loading effect
     private void startDelayedTransition(String nextScreen, int delayMs) {
         Timer timer = new Timer(delayMs, e -> {
             cardLayout.show(cardPanel, nextScreen);
