@@ -8,8 +8,7 @@ public class Home {
 
     public JPanel createHome() {
         // Background-image
-        // Note: Pa change nalang ng final na na image na gagamition
-        ImagePanel background = new ImagePanel("images/image1.png");
+        ImagePanel background = new ImagePanel("images/MainBg.png");
         background.setLayout(new GridBagLayout());
 
         // Pop-up

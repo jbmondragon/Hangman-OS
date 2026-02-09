@@ -5,7 +5,7 @@ public class Win {
 
     public JPanel createWin() {
 
-        ImagePanel background = new ImagePanel("images/image1.png");
+        ImagePanel background = new ImagePanel("images/MainBg.png");
         background.setLayout(new GridBagLayout());
 
         // Pop-up

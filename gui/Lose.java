@@ -5,7 +5,7 @@ public class Lose {
 
     public JPanel createLose() {
 
-        ImagePanel background = new ImagePanel("images/image1.png");
+        ImagePanel background = new ImagePanel("images/GameOverBg.png");
         background.setLayout(new GridBagLayout());
 
         JPanel popup = new JPanel(new BorderLayout());

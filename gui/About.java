@@ -5,7 +5,7 @@ public class About {
 
     public JPanel createAbout() {
 
-        ImagePanel background = new ImagePanel("images/image1.png");
+        ImagePanel background = new ImagePanel("images/MainBg.png");
         background.setLayout(new GridBagLayout());
 
         // Pop-up

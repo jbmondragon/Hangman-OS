@@ -9,7 +9,7 @@ public class Warning {
 
     public JPanel createWarning() {
 
-        ImagePanel openingPanel = new ImagePanel("images/image1.png");
+        ImagePanel openingPanel = new ImagePanel("images/MainBg.png");
         openingPanel.setLayout(new GridBagLayout());
 
         JPanel popup = new JPanel(new BorderLayout());
