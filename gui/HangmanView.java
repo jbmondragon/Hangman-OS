@@ -14,6 +14,8 @@ public class HangmanView {
     private ImagePanel hangmanImagePanel;
     private JPanel keyboardPanel;
     private JButton[] buttons = new JButton[26];
+    private static long lastTime = 0;
+    private static final long minimum = 200;
 
     // Hangman Game Panel
     public JPanel createHangmanPanel() {
@@ -107,6 +109,11 @@ public class HangmanView {
         AbstractAction actionA = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                long current = System.currentTimeMillis();
+
+                if(current - lastTime < minimum){
+                    return;
+                }
                 String event = e.getActionCommand();
                 char c = event.charAt(0);
                 char letter = Character.toLowerCase(c);
@@ -116,6 +123,7 @@ public class HangmanView {
                 updateUI();
                 if (game.isGameOver())
                     handleGameOver(main);
+                lastTime = current;
             }
         };
 
