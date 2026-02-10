@@ -1,6 +1,7 @@
 import backend.Database;
 import backend.Hangman;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import javax.swing.*;
 
 public class HangmanView {
@@ -12,6 +13,7 @@ public class HangmanView {
     private JLabel livesLabel;
     private ImagePanel hangmanImagePanel;
     private JPanel keyboardPanel;
+    private JButton[] buttons = new JButton[26];
 
     // Hangman Game Panel
     public JPanel createHangmanPanel() {
@@ -102,22 +104,48 @@ public class HangmanView {
         keyboard.setBackground(new Color(0, 60, 120));
         keyboard.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
 
-        for (char c = 'A'; c <= 'Z'; c++) {
-            JButton key = new JButton(String.valueOf(c));
-            key.setFont(new Font("Monospaced", Font.BOLD, 12));
-            key.setFocusable(false);
-            char letter = Character.toLowerCase(c);
+        AbstractAction actionA = new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String event = e.getActionCommand();
+                char c = event.charAt(0);
+                char letter = Character.toLowerCase(c);
+                int count = letter - 'a';
+                buttons[count].setEnabled(false);
+                game.guess(letter);
+                updateUI();
+                if (game.isGameOver())
+                    handleGameOver(main);
+            }
+        };
 
-            key.addActionListener(e -> {
-                key.setEnabled(false);
+        InputMap im = main.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ActionMap am = main.getActionMap();
+
+        for (char c = 'A'; c <= 'Z'; c++) {
+            String actionMapKey = "press" + c;
+            KeyStroke keyStroke = KeyStroke.getKeyStroke(c, 0);
+            im.put(keyStroke, actionMapKey);
+            am.put(actionMapKey, actionA);
+            
+            int count = c - 'A';
+            buttons[count] = new JButton(String.valueOf(c));
+            buttons[count].setFont(new Font("Monospaced", Font.BOLD, 12));
+            buttons[count].setFocusable(false);
+            char letter = Character.toLowerCase(c);
+            
+
+            buttons[count].addActionListener(e -> {
+                buttons[count].setEnabled(false);
                 game.guess(letter);
                 updateUI();
                 if (game.isGameOver())
                     handleGameOver(main);
             });
 
-            keyboard.add(key);
+            keyboard.add(buttons[count]);
         }
+
         return keyboard;
     }
 
