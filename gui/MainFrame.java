@@ -17,8 +17,12 @@ public class MainFrame extends JFrame {
 
     private CardLayout cardLayout;
     private JPanel cardPanel;
+    private SoundManager soundManager;
+    private String currentScreen = OPENING;
+    private boolean gameStarted = false;
 
     public MainFrame() {
+        soundManager = SoundManager.getInstance();
         setupFrame();
         setupCards();
     }
@@ -30,6 +34,14 @@ public class MainFrame extends JFrame {
         setLocationRelativeTo(null);
         setResizable(false);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
+        
+        // Stop all sounds when window is closed
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent e) {
+                soundManager.stopAllSounds();
+            }
+        });
     }
 
     private void setupCards() {
@@ -56,34 +68,74 @@ public class MainFrame extends JFrame {
 
         // First Card
         cardLayout.show(cardPanel, OPENING);
+        currentScreen = OPENING;
+        
+        // Start transition to warning after 2 seconds
         startDelayedTransition(WARNING, 2000);
     }
 
     // Loading effect
     private void startDelayedTransition(String nextScreen, int delayMs) {
         Timer timer = new Timer(delayMs, e -> {
-            cardLayout.show(cardPanel, nextScreen);
+            showScreen(nextScreen);
         });
         timer.setRepeats(false);
         timer.start();
     }
 
     public void showScreen(String screen) {
+        System.out.println("Switching to screen: " + screen);
+        
+        // Stop all sounds when switching screens except for specific cases
+        if (!screen.equals(HANGMAN)) {
+            soundManager.stopAllSounds();
+        }
+        
+        // Play Hangman-Start when switching to HANGMAN screen
+        if (screen.equals(HANGMAN)) {
+            soundManager.playSound(SoundManager.HANGMAN_START);
+        }
+        
         cardLayout.show(cardPanel, screen);
+        currentScreen = screen;
     }
 
     public void restartGame() {
+        System.out.println("Restarting game...");
+        
+        // Stop all sounds before restarting
+        soundManager.stopAllSounds();
 
-        cardPanel.remove(cardPanel.getComponent(
-                java.util.Arrays.asList(cardPanel.getComponents())
-                        .indexOf(cardPanel.getComponent(2))));
+        // Remove old Hangman panel and create new one
+        int hangmanIndex = -1;
+        for (int i = 0; i < cardPanel.getComponentCount(); i++) {
+            if (cardPanel.getComponents()[i].getName() != null && 
+                cardPanel.getComponents()[i].getName().equals(HANGMAN)) {
+                hangmanIndex = i;
+                break;
+            }
+        }
+        
+        if (hangmanIndex >= 0) {
+            cardPanel.remove(hangmanIndex);
+        }
 
         HangmanView newHangman = new HangmanView();
-        cardPanel.add(newHangman.createHangmanPanel(), HANGMAN);
+        JPanel newHangmanPanel = newHangman.createHangmanPanel();
+        newHangmanPanel.setName(HANGMAN);
+        cardPanel.add(newHangmanPanel, HANGMAN, hangmanIndex >= 0 ? hangmanIndex : cardPanel.getComponentCount());
 
         cardPanel.revalidate();
         cardPanel.repaint();
 
         cardLayout.show(cardPanel, HANGMAN);
+        currentScreen = HANGMAN;
+        
+        // Play Hangman-Start when restarting
+        soundManager.playSound(SoundManager.HANGMAN_START);
+    }
+
+    public String getCurrentScreen() {
+        return currentScreen;
     }
 }
