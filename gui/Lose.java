@@ -3,10 +3,31 @@ import javax.swing.*;
 
 public class Lose {
 
-    public JPanel createLose() {
+    private SoundManager soundManager;
+    private boolean soundPlayed = false;
 
+    public JPanel createLose() {
+        soundManager = SoundManager.getInstance();
+        
         ImagePanel background = new ImagePanel("images/GameOverBg.png");
         background.setLayout(new GridBagLayout());
+
+        // Add component listener to play sound only when panel is shown
+        background.addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentShown(java.awt.event.ComponentEvent e) {
+                if (!soundPlayed) {
+                    soundManager.playSound(SoundManager.LOSE);
+                    soundPlayed = true;
+                }
+            }
+            
+            @Override
+            public void componentHidden(java.awt.event.ComponentEvent e) {
+                // Reset flag when hidden so it plays again if shown later
+                soundPlayed = false;
+            }
+        });
 
         JPanel popup = new JPanel(new BorderLayout());
         popup.setPreferredSize(new Dimension(420, 260));
@@ -24,6 +45,7 @@ public class Lose {
         close.setFocusable(false);
         close.setMargin(new Insets(2, 8, 2, 8));
         close.addActionListener(e -> {
+            soundManager.stopAllSounds();
             JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(close);
             if (frame instanceof MainFrame) {
                 ((MainFrame) frame).showScreen(MainFrame.HOME);
@@ -53,6 +75,7 @@ public class Lose {
 
         JButton homeButton = new JButton("HOME");
         homeButton.addActionListener(e -> {
+            soundManager.stopAllSounds();
             JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(homeButton);
             if (frame instanceof MainFrame) {
                 ((MainFrame) frame).showScreen(MainFrame.HOME);
@@ -61,6 +84,7 @@ public class Lose {
 
         JButton playAgainButton = new JButton("PLAY AGAIN");
         playAgainButton.addActionListener(e -> {
+            soundManager.stopAllSounds();
             JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(playAgainButton);
             if (frame instanceof MainFrame) {
                 ((MainFrame) frame).restartGame();
