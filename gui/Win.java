@@ -3,8 +3,11 @@ import javax.swing.*;
 
 public class Win {
 
-    public JPanel createWin() {
+    private SoundManager soundManager;
 
+    public JPanel createWin() {
+        soundManager = SoundManager.getInstance();
+        
         ImagePanel background = new ImagePanel("images/MainBg.png");
         background.setLayout(new GridBagLayout());
 
@@ -24,6 +27,7 @@ public class Win {
         close.setFocusable(false);
         close.setMargin(new Insets(2, 8, 2, 8));
         close.addActionListener(e -> {
+            soundManager.stopAllSounds();
             JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(close);
             if (frame instanceof MainFrame) {
                 ((MainFrame) frame).showScreen(MainFrame.HOME);
@@ -55,6 +59,7 @@ public class Win {
 
         JButton homeButton = new JButton("HOME");
         homeButton.addActionListener(e -> {
+            soundManager.stopAllSounds();
             JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(homeButton);
             if (frame instanceof MainFrame) {
                 ((MainFrame) frame).showScreen(MainFrame.HOME);
@@ -63,6 +68,7 @@ public class Win {
 
         JButton playAgainButton = new JButton("PLAY AGAIN");
         playAgainButton.addActionListener(e -> {
+            soundManager.stopAllSounds();
             JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(playAgainButton);
             if (frame instanceof MainFrame) {
                 ((MainFrame) frame).restartGame();
