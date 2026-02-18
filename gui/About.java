@@ -3,10 +3,31 @@ import javax.swing.*;
 
 public class About {
 
-    public JPanel createAbout() {
+    private SoundManager soundManager;
+    private boolean soundPlayed = false;
 
+    public JPanel createAbout() {
+        soundManager = SoundManager.getInstance();
+        
         ImagePanel background = new ImagePanel("images/MainBg.png");
         background.setLayout(new GridBagLayout());
+
+        // Add component listener to play sound only when panel is shown
+        background.addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentShown(java.awt.event.ComponentEvent e) {
+                if (!soundPlayed) {
+                    soundManager.playSound(SoundManager.ABOUT_PAGE);
+                    soundPlayed = true;
+                }
+            }
+            
+            @Override
+            public void componentHidden(java.awt.event.ComponentEvent e) {
+                // Reset flag when hidden so it plays again if shown later
+                soundPlayed = false;
+            }
+        });
 
         // Pop-up
         JPanel popup = new JPanel(new BorderLayout());
@@ -51,7 +72,6 @@ public class About {
         messagePanel.add(message, BorderLayout.CENTER);
 
         // Buttons
-        // ************************************************************************************************************
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 8));
         buttonPanel.setBackground(new Color(230, 230, 230));
 
@@ -80,8 +100,6 @@ public class About {
 
         buttonPanel.add(homeButton);
         buttonPanel.add(exitButton);
-
-        // ************************************************************************************************************
 
         // Pag assemble sa pop-up
         popup.add(titleBar, BorderLayout.NORTH);
