@@ -6,11 +6,32 @@ public class Warning {
 
     JButton close;
     Random rand = new Random();
+    private SoundManager soundManager;
+    private boolean soundPlayed = false;
 
     public JPanel createWarning() {
-
+        soundManager = SoundManager.getInstance();
+        
         ImagePanel openingPanel = new ImagePanel("images/MainBg.png");
         openingPanel.setLayout(new GridBagLayout());
+
+        // Add component listener to play sound when warning panel is shown
+        openingPanel.addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentShown(java.awt.event.ComponentEvent e) {
+                if (!soundPlayed) {
+                    // Play About-Page sound when HELP! pop-up shows
+                    soundManager.playSound(SoundManager.ABOUT_PAGE);
+                    soundPlayed = true;
+                }
+            }
+            
+            @Override
+            public void componentHidden(java.awt.event.ComponentEvent e) {
+                // Reset flag when hidden
+                soundPlayed = false;
+            }
+        });
 
         JPanel popup = new JPanel(new BorderLayout());
         popup.setPreferredSize(new Dimension(420, 260));
