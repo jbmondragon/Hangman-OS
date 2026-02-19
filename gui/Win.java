@@ -7,6 +7,7 @@ public class Win {
     private SoundManager soundManager;
     private final Random rand = new Random();
     JButton close;
+    private boolean soundPlayed = false; // Add flag
 
     public JPanel createWin() {
         soundManager = SoundManager.getInstance();
@@ -14,6 +15,9 @@ public class Win {
         // bg
         ImagePanel background = new ImagePanel("images/MainBg.png");
         background.setLayout(new GridBagLayout());
+
+        // Add component listener (optional - if you want a win sound)
+        // Currently no win sound, but you could add one later
 
         // pop-up
         JPanel popup = new JPanel(new BorderLayout());
