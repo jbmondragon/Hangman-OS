@@ -3,21 +3,23 @@ import backend.Hangman;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import javax.swing.*;
+import javax.swing.border.BevelBorder;
 
 public class HangmanView {
 
     Hangman game;
     Database db = new Database();
-    private SoundManager soundManager;
+    private SoundManager soundManager; // Declared but was not initialized
 
     private JLabel wordLabel;
     private JLabel livesLabel;
     private ImagePanel hangmanImagePanel;
+    private ImagePanel mainBackground;
     private JPanel keyboardPanel;
     private JButton[] buttons = new JButton[26];
     private static long lastTime = 0;
     private static final long minimum = 200;
-    
+
     // Timers for S6 and flatline synchronization
     private Timer s6DisplayTimer;
     private Timer s6SoundTimer;
@@ -26,132 +28,160 @@ public class HangmanView {
     private String currentHangmanSound = null;
     private boolean isS6Playing = false;
     private boolean gameOverTriggered = false;
-    private JPanel mainPanel;
     
+    // FIX 2: Ensure this variable is actually used/assigned
+    private JPanel mainPanel; 
+
     // Sound durations (in milliseconds)
     private static final int S6_SOUND_DURATION = 2000; // S6.wav is 2 seconds
     private static final int FLATLINE_DURATION = 2000; // Flatline.wav is 2 seconds
     private static final int S6_TOTAL_DISPLAY_TIME = 6000; // 6 seconds total for S6.gif
 
-    // Hangman Game Panel
+    // Window panels
+    private RetroWindow[] windows;
+
     public JPanel createHangmanPanel() {
+        // FIX 1: Initialize the SoundManager!
         soundManager = SoundManager.getInstance();
-        game = new Hangman(db.getRandomWord());
         
-        mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setBackground(new Color(0, 80, 150));
-        mainPanel.add(createCenterPanel(), BorderLayout.CENTER);
-        mainPanel.add(createBottomPanel(mainPanel), BorderLayout.SOUTH);
+        String word = db.getRandomWord();
+        if (word == null) word = "error";
+        game = new Hangman(word);
 
-        return mainPanel;
+        mainBackground = new ImagePanel("images/MainBg.png"); 
+        
+        // FIX 2: Assign mainBackground to mainPanel so transitionToGameOver can find the frame
+        mainPanel = mainBackground;
+    
+        mainBackground.setLayout(null);
+        mainBackground.setSize(1000, 800);
+
+        JPanel guessContent = createGuessContent();
+        JPanel virusContent = createVirusContent();
+        JPanel keyboardContent = createKeyboardContent(mainBackground);
+
+        // Windows, Coordinates: x, y, width, height
+        RetroWindow guessWindow = new RetroWindow("GUESS.exe", guessContent, 135, 135, 350, 250);
+        RetroWindow virusWindow = new RetroWindow("VIRUS.exe", virusContent, 525, 115, 325, 320);
+        RetroWindow keyboardWindow = new RetroWindow("KEYBOARD.exe", keyboardContent, 90, 450, 800, 200);
+
+        // Visibility set to 0
+        guessWindow.setVisible(false);
+        virusWindow.setVisible(false);
+        keyboardWindow.setVisible(false);
+
+        mainBackground.add(guessWindow);
+        mainBackground.add(virusWindow);
+        mainBackground.add(keyboardWindow);
+
+        windows = new RetroWindow[]{guessWindow, virusWindow, keyboardWindow};
+
+        startFadeInAnimation();
+
+        return mainBackground;
     }
 
-    // Create center panel: word, lives, and hangman image
-    private JPanel createCenterPanel() {
-        JPanel center = new JPanel(new GridLayout(1, 2));
-        center.setOpaque(false);
+    // Pop In Animation for Windows
+    private void startFadeInAnimation() {
+        Timer timer = new Timer(300, null);
+        final int[] index = {0};
 
-        center.add(createLeftPanel());
-        center.add(createRightPanel());
-
-        return center;
+        timer.addActionListener(e -> {
+            if (index[0] < windows.length) {
+                windows[index[0]].setVisible(true);
+                windows[index[0]].repaint();
+                index[0]++;
+            } else {
+                timer.stop();
+            }
+        });
+        timer.start();
     }
 
-    // Left panel: word and lives
-    private JPanel createLeftPanel() {
-        JPanel left = new JPanel(new BorderLayout());
-        left.setBackground(new Color(0, 90, 170));
-        left.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+    // Word to be guessed
+    private JPanel createGuessContent() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(new Color(220, 220, 220));
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         wordLabel = new JLabel(game.getGuessedWord(), SwingConstants.CENTER);
-        wordLabel.setFont(new Font("Monospaced", Font.BOLD, 28));
-        wordLabel.setForeground(Color.WHITE);
+        wordLabel.setFont(new Font("Monospaced", Font.BOLD, 32));
+        wordLabel.setForeground(Color.BLACK);
 
-        livesLabel = new JLabel("Lives: " + game.getRemainingAttempts(), SwingConstants.CENTER);
-        livesLabel.setFont(new Font("Monospaced", Font.BOLD, 14));
-        livesLabel.setForeground(Color.WHITE);
+        livesLabel = new JLabel("Lives Remaining: " + game.getRemainingAttempts(), SwingConstants.CENTER);
+        livesLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        livesLabel.setForeground(new Color(150, 0, 0));
+        livesLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
 
-        left.add(wordLabel, BorderLayout.CENTER);
-        left.add(livesLabel, BorderLayout.SOUTH);
-
-        return left;
+        panel.add(wordLabel, BorderLayout.CENTER);
+        panel.add(livesLabel, BorderLayout.SOUTH);
+        return panel;
     }
 
-    // Right panel: hangman image
-    private JPanel createRightPanel() {
-        JPanel right = new JPanel(new BorderLayout());
-        right.setBackground(new Color(0, 70, 140));
-        right.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-
-        // Use ImagePanel instead of JLabel for the hangman image
-        hangmanImagePanel = new ImagePanel("images/S0.gif");
+    // Stickman animation
+    private JPanel createVirusContent() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(Color.WHITE);
+        
+        hangmanImagePanel = new ImagePanel("images/S0.gif", false);
         hangmanImagePanel.setOpaque(false);
         
-        right.add(hangmanImagePanel, BorderLayout.CENTER);
-        return right;
+        panel.add(hangmanImagePanel, BorderLayout.CENTER);
+        return panel;
     }
 
-    // Bottom panel: controls and keyboard
-    private JPanel createBottomPanel(JPanel main) {
-        JPanel bottom = new JPanel(new BorderLayout());
+    // Keyboard
+    private JPanel createKeyboardContent(JPanel main) {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(new Color(220, 220, 220));
 
-        JPanel controlBar = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 5));
-        controlBar.setBackground(new Color(0, 60, 120));
-
+        keyboardPanel = createKeys(main);
+        
+        // Restart/Home Button
+        JPanel controlBar = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        controlBar.setBackground(new Color(200, 200, 200));
+        controlBar.setBorder(BorderFactory.createEtchedBorder());
+        
         JButton restartBtn = new JButton("RESTART");
         JButton exitBtn = new JButton("HOME");
         restartBtn.setFocusable(false);
         exitBtn.setFocusable(false);
-
+        
         restartBtn.addActionListener(e -> restartGame(main));
         exitBtn.addActionListener(e -> exitToHome(main));
-
+        
         controlBar.add(restartBtn);
         controlBar.add(exitBtn);
 
-        keyboardPanel = createKeyboardPanel(main);
-
-        bottom.add(controlBar, BorderLayout.NORTH);
-        bottom.add(keyboardPanel, BorderLayout.CENTER);
-
-        return bottom;
+        panel.add(controlBar, BorderLayout.NORTH);
+        panel.add(keyboardPanel, BorderLayout.CENTER);
+        return panel;
     }
 
-    // Keyboard Panel with buttons
-    private JPanel createKeyboardPanel(JPanel main) {
-        JPanel keyboard = new JPanel(new GridLayout(3, 9, 5, 5));
-        keyboard.setBackground(new Color(0, 60, 120));
-        keyboard.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+    // Grid for the keys
+    private JPanel createKeys(JPanel main) {
+        JPanel keyboard = new JPanel(new GridLayout(3, 9, 4, 4));
+        keyboard.setBackground(new Color(192, 192, 192));
+        keyboard.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         AbstractAction actionA = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 long current = System.currentTimeMillis();
-                if(current - lastTime < minimum){
-                    return;
-                }
-                
-                // Don't process if game is already over
-                if (gameOverTriggered) {
-                    return;
-                }
-                
-                // Play keyboard sound for keyboard press
-                soundManager.playSound(SoundManager.KEYBOARD);
+                if(current - lastTime < minimum) return;
                 
                 String event = e.getActionCommand();
                 char c = event.charAt(0);
                 char letter = Character.toLowerCase(c);
                 int count = letter - 'a';
-                if (count >= 0 && count < buttons.length && buttons[count] != null && buttons[count].isEnabled()) {
+                if(count >= 0 && count < 26 && buttons[count].isEnabled()) {
+                    // Play sound when button is pressed
+                    if(soundManager != null) soundManager.playSound(SoundManager.KEYBOARD);
+                    
                     buttons[count].setEnabled(false);
                     game.guess(letter);
                     updateUI();
-                    
-                    // Check if game is over after update
-                    if (game.isGameOver() && !gameOverTriggered) {
-                        handleGameOver(main);
-                    }
+                    if (game.isGameOver()) handleGameOver(main);
                 }
                 lastTime = current;
             }
@@ -161,95 +191,35 @@ public class HangmanView {
         ActionMap am = main.getActionMap();
 
         for (char c = 'A'; c <= 'Z'; c++) {
+            int index = c - 'A';
+            buttons[index] = new JButton(String.valueOf(c));
+            buttons[index].setFont(new Font("SansSerif", Font.BOLD, 12));
+            buttons[index].setFocusable(false);
+            buttons[index].setBackground(new Color(240, 240, 240));
+            buttons[index].setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
+            
+            char letter = Character.toLowerCase(c);
+            buttons[index].addActionListener(e -> {
+                // Play sound on click
+                if(soundManager != null) soundManager.playSound(SoundManager.KEYBOARD);
+
+                buttons[index].setEnabled(false);
+                game.guess(letter);
+                updateUI();
+                if (game.isGameOver()) handleGameOver(main);
+            });
+
+            // Keybinds
             String actionMapKey = "press" + c;
             KeyStroke keyStroke = KeyStroke.getKeyStroke(c, 0);
             im.put(keyStroke, actionMapKey);
             am.put(actionMapKey, actionA);
-            
-            int count = c - 'A';
-            buttons[count] = new JButton(String.valueOf(c));
-            buttons[count].setFont(new Font("Monospaced", Font.BOLD, 12));
-            buttons[count].setFocusable(false);
-            final char letter = Character.toLowerCase(c);
-            final int buttonIndex = count;
 
-            buttons[count].addActionListener(e -> {
-                // Don't process if game is already over
-                if (gameOverTriggered) {
-                    return;
-                }
-                
-                // Play keyboard sound for mouse click
-                soundManager.playSound(SoundManager.KEYBOARD);
-                
-                JButton source = (JButton) e.getSource();
-                if (source.isEnabled()) {
-                    source.setEnabled(false);
-                    game.guess(letter);
-                    updateUI();
-                    
-                    // Check if game is over after update
-                    if (game.isGameOver() && !gameOverTriggered) {
-                        handleGameOver(main);
-                    }
-                }
-            });
-
-            keyboard.add(buttons[count]);
+            keyboard.add(buttons[index]);
         }
-
         return keyboard;
     }
 
-    // Update word, lives, and loads hangman image
-    private void updateUI() {
-        wordLabel.setText(game.getGuessedWord());
-        livesLabel.setText("Lives: " + game.getRemainingAttempts());
-        
-        String[] imageNames = {"S0.gif", "S1.gif", "S2.gif", "S3.gif", "S4.gif", "S5.gif", "S6.gif"};
-        String[] soundNames = {null, SoundManager.S1, SoundManager.S2, SoundManager.S3, 
-                               SoundManager.S4, SoundManager.S5, SoundManager.S6};
-        
-        int index = 6 - game.getRemainingAttempts();
-        // Ensure index is within bounds
-        index = Math.min(index, 6);
-        
-        // Stop all S6-related timers if we're leaving S6
-        if (isS6Playing && index != 6) {
-            stopS6Timers();
-        }
-        
-        // Stop previous hangman sound if playing
-        if (currentHangmanSound != null) {
-            soundManager.stopSound(currentHangmanSound);
-        }
-        
-        // Play new hangman sound if index > 0 (S1 to S6)
-        if (index > 0 && index <= 6) {
-            currentHangmanSound = soundNames[index];
-            
-            if (index == 6) {
-                // Special handling for S6
-                handleS6Sound();
-            } else {
-                // For S1-S5, play in a continuous loop
-                soundManager.playSoundLoop(currentHangmanSound);
-            }
-        }
-        
-        // Update the image panel
-        Container parent = hangmanImagePanel.getParent();
-        if (parent != null) {
-            parent.remove(hangmanImagePanel);
-            hangmanImagePanel = new ImagePanel("images/" + imageNames[index]);
-            hangmanImagePanel.setOpaque(false);
-            parent.add(hangmanImagePanel, BorderLayout.CENTER);
-            parent.revalidate();
-            parent.repaint();
-        }
-    }
-    
-    // Special handling for S6 sound sequence
     private void handleS6Sound() {
         isS6Playing = true;
         gameOverTriggered = true; // Mark that game is over but we're showing animation
@@ -258,11 +228,11 @@ public class HangmanView {
         disableKeyboard();
         
         // First, play S6.wav (2 seconds)
-        soundManager.playSound(SoundManager.S6);
+        if(soundManager != null) soundManager.playSound(SoundManager.S6);
         
         // Schedule Flatline-after-S6 to play immediately after S6 finishes
         s6SoundTimer = new Timer(S6_SOUND_DURATION, e -> {
-            soundManager.playSound(SoundManager.FLATLINE);
+            if(soundManager != null) soundManager.playSound(SoundManager.FLATLINE);
             
             // Schedule the transition to game over screen after flatline finishes
             flatlineTimer = new Timer(FLATLINE_DURATION, e2 -> {
@@ -289,7 +259,7 @@ public class HangmanView {
         s6DisplayTimer.setRepeats(false);
         s6DisplayTimer.start();
     }
-    
+
     // Transition to appropriate game over screen
     private void transitionToGameOver() {
         if (!isS6Playing) return; // Already transitioned
@@ -308,7 +278,7 @@ public class HangmanView {
             mainFrame.showScreen(MainFrame.LOSE);
         }
     }
-    
+
     // Stop all S6-related timers
     private void stopS6Timers() {
         if (s6SoundTimer != null && s6SoundTimer.isRunning()) {
@@ -324,6 +294,80 @@ public class HangmanView {
             gameOverTransitionTimer.stop();
         }
         isS6Playing = false;
+    }
+
+    private void updateUI() {
+        wordLabel.setText(game.getGuessedWord());
+        livesLabel.setText("Lives: " + game.getRemainingAttempts());
+        
+        int lives = game.getRemainingAttempts();
+        String bgImage = "images/MainBg.png";
+        String barImage = "images/bar.png"; 
+
+        if (lives == 5) bgImage = "images/5LivesBg.png";
+        else if (lives == 4) bgImage = "images/4LivesBg.png";
+        else if (lives == 3) {
+            bgImage = "images/3LivesBg.png";
+            barImage = "images/bar2.png"; 
+        }
+        else if (lives == 2) {
+            bgImage = "images/2LivesBg.png";
+            barImage = "images/bar2.png";
+        }
+        else if (lives == 1) {
+            bgImage = "images/1LifeBg.png";
+            barImage = "images/bar2.png";
+        }
+        else if (lives == 0) {
+            bgImage = "images/GameOverBg.png";
+            barImage = "images/bar2.png";
+        }
+
+        if (mainBackground != null) {
+            mainBackground.updateBackgroundImage(bgImage);
+            mainBackground.updatePatternImage(barImage);
+        }
+
+        // Stickman gifs
+        String[] imageNames = {"S0.gif", "S1.gif", "S2.gif", "S3.gif", "S4.gif", "S5.gif", "S6.gif"};
+        String[] soundNames = {null, SoundManager.S1, SoundManager.S2, SoundManager.S3, 
+                                SoundManager.S4, SoundManager.S5, SoundManager.S6};
+        int index = 6 - game.getRemainingAttempts();
+        if(index > 6) index = 6;
+
+        // Stop all S6-related timers if we're leaving S6
+        if (isS6Playing && index != 6) {
+            stopS6Timers();
+        }
+        
+        // Stop previous hangman sound if playing
+        if (currentHangmanSound != null && soundManager != null) {
+            soundManager.stopSound(currentHangmanSound);
+        }
+        
+        // Play new hangman sound if index > 0 (S1 to S6)
+        if (index > 0 && index <= 6 && soundManager != null) {
+            currentHangmanSound = soundNames[index];
+            
+            if (index == 6) {
+                // Special handling for S6
+                handleS6Sound();
+            } else {
+                // For S1-S5, play in a continuous loop
+                soundManager.playSoundLoop(currentHangmanSound);
+            }
+        }
+        
+        // Update the image panel
+        JPanel parent = (JPanel) hangmanImagePanel.getParent();
+        parent.remove(hangmanImagePanel);
+        
+        hangmanImagePanel = new ImagePanel("images/" + imageNames[index], false);
+        hangmanImagePanel.setOpaque(false);
+        parent.add(hangmanImagePanel, BorderLayout.CENTER);
+        
+        parent.revalidate();
+        parent.repaint();
     }
 
     // Handle end of game
@@ -344,7 +388,7 @@ public class HangmanView {
         disableKeyboard();
         
         // Stop any playing hangman sounds
-        if (currentHangmanSound != null) {
+        if (currentHangmanSound != null && soundManager != null) {
             soundManager.stopSound(currentHangmanSound);
         }
 
@@ -360,30 +404,21 @@ public class HangmanView {
         // Note: Loss with remaining attempts doesn't happen since we handle S6 above
     }
 
-    // Disable all buttons
     private void disableKeyboard() {
-        for (Component c : keyboardPanel.getComponents()) {
-            c.setEnabled(false);
+        for (JButton b : buttons) {
+            if(b != null) b.setEnabled(false);
         }
     }
 
-    // Restart Game
     private void restartGame(JPanel main) {
-        // Stop all sounds and timers before restarting
-        soundManager.stopAllSounds();
-        stopS6Timers();
-        gameOverTriggered = false;
-        isS6Playing = false;
-        
         JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(main);
-        if (frame instanceof MainFrame)
-            ((MainFrame) frame).restartGame();
+        if (frame instanceof MainFrame) ((MainFrame) frame).restartGame();
     }
 
     // Go to home
     private void exitToHome(JPanel main) {
         // Stop all sounds and timers when exiting to home
-        soundManager.stopAllSounds();
+        if(soundManager != null) soundManager.stopAllSounds();
         stopS6Timers();
         gameOverTriggered = false;
         isS6Playing = false;
@@ -391,5 +426,40 @@ public class HangmanView {
         JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(main);
         if (frame instanceof MainFrame)
             ((MainFrame) frame).showScreen(MainFrame.HOME);
+    }
+
+    // Window Panel
+    class RetroWindow extends JPanel {
+
+        public RetroWindow(String title, JPanel content, int x, int y, int w, int h) {
+            setLayout(new BorderLayout());
+            setBounds(x, y, w, h);
+            setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
+            setBackground(Color.LIGHT_GRAY);
+
+            // Title
+            JPanel titleBar = new JPanel(new BorderLayout());
+            titleBar.setBackground(new Color(0, 0, 128));
+            titleBar.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
+            titleBar.setPreferredSize(new Dimension(w, 25));
+
+            JLabel titleLabel = new JLabel(title);
+            titleLabel.setForeground(Color.WHITE);
+            titleLabel.setFont(new Font("Monospaced", Font.BOLD, 14));
+
+            // X button
+            JButton closeBtn = new JButton(" X ");
+            closeBtn.setMargin(new Insets(2, 0, 2, 0));
+            closeBtn.setFont(new Font("Monospaced", Font.BOLD, 10));
+            closeBtn.setFocusable(false);
+            closeBtn.setBackground(Color.LIGHT_GRAY);
+            closeBtn.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
+
+            titleBar.add(titleLabel, BorderLayout.WEST);
+            titleBar.add(closeBtn, BorderLayout.EAST);
+
+            add(titleBar, BorderLayout.NORTH);
+            add(content, BorderLayout.CENTER);
+        }
     }
 }
