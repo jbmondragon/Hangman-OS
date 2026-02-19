@@ -31,9 +31,10 @@ cd Mine-Sweeper
 
 To compile and run the project via terminal:
 
-````bash
-javac -d out $(find . -name "*.java")
-java -cp "out;." Main
+```bash
+find . -name "*.class" -type f -delete
+javac -d out $(find . -name "*.java") && java -cp "out;." Main
+```
 
 ### 3️. Run the Application
 
@@ -55,7 +56,7 @@ You can run the game by:
 
 ```bash
 java -jar Hangman-OS.jar
-````
+```
 
 #### Option B: GUI
 
