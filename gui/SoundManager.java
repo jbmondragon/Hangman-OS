@@ -54,11 +54,9 @@ public class SoundManager {
 
     private void loadSound(String key, String filename) {
         try {
-            // Relative Filepath
-            URL url = getClass().getResource("sounds/" + filename);
+            URL url = getClass().getResource("/sounds/" + filename);
 
             if (url == null) {
-                // Fallback: Check root level (if running from different context)
                 url = getClass().getResource("/gui/sounds/" + filename);
             }
 
@@ -66,42 +64,45 @@ public class SoundManager {
                 System.err.println("❌ Error: Sound file not found: " + filename);
                 return;
             }
-            
+
             AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(url);
             Clip clip = AudioSystem.getClip();
             clip.open(audioInputStream);
             clips.put(key, clip);
-            //System.out.println("✅ Loaded sound: " + key);
 
         } catch (Exception e) {
-            System.err.println("❌ Error loading sound: " + filename);
+            System.err.println("Error loading sound: " + filename);
             e.printStackTrace();
         }
     }
 
     public void playSound(String key) {
-        if (!soundEnabled) return;
-        
+        if (!soundEnabled)
+            return;
+
         Clip clip = clips.get(key);
-        if (clip == null) return;
+        if (clip == null)
+            return;
 
         if (clip.isRunning()) {
             clip.stop();
         }
-        
+
         clip.setFramePosition(0);
         clip.start();
     }
 
     public void playSoundLoop(String key) {
-        if (!soundEnabled) return;
-        
+        if (!soundEnabled)
+            return;
+
         if (currentlyPlayingLoop != null) {
             stopSound(currentlyPlayingLoop);
         }
-        
+
         Clip clip = clips.get(key);
-        if (clip == null) return;
+        if (clip == null)
+            return;
 
         clip.setFramePosition(0);
         clip.loop(Clip.LOOP_CONTINUOUSLY);

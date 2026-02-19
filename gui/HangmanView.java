@@ -43,7 +43,7 @@ public class HangmanView {
             word = "error";
         game = new Hangman(word);
 
-        mainBackground = new ImagePanel("/Images/MainBg.png");
+        mainBackground = new ImagePanel("/images/MainBg.png");
         mainPanel = mainBackground;
         mainBackground.setLayout(null);
         mainBackground.setSize(1000, 800);
@@ -108,7 +108,7 @@ public class HangmanView {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(Color.WHITE);
 
-        hangmanImagePanel = new ImagePanel("/Images/S0.gif", false);
+        hangmanImagePanel = new ImagePanel("/images/S0.gif", false);
         hangmanImagePanel.setOpaque(false);
 
         panel.add(hangmanImagePanel, BorderLayout.CENTER);
@@ -220,25 +220,25 @@ public class HangmanView {
         livesLabel.setText("Lives: " + game.getRemainingAttempts());
 
         int lives = game.getRemainingAttempts();
-        String bgImage = "/Images/MainBg.png";
-        String barImage = "/Images/bar.png";
+        String bgImage = "/images/MainBg.png";
+        String barImage = "/images/bar.png";
 
         if (lives == 5)
-            bgImage = "/Images/5LivesBg.png";
+            bgImage = "/images/5LivesBg.png";
         else if (lives == 4)
-            bgImage = "/Images/4LivesBg.png";
+            bgImage = "/images/4LivesBg.png";
         else if (lives == 3) {
-            bgImage = "/Images/3LivesBg.png";
-            barImage = "/Images/bar2.png";
+            bgImage = "/images/3LivesBg.png";
+            barImage = "/images/bar2.png";
         } else if (lives == 2) {
-            bgImage = "/Images/2LivesBg.png";
-            barImage = "/Images/bar2.png";
+            bgImage = "/images/2LivesBg.png";
+            barImage = "/images/bar2.png";
         } else if (lives == 1) {
-            bgImage = "/Images/1LifeBg.png";
-            barImage = "/Images/bar2.png";
+            bgImage = "/images/1LifeBg.png";
+            barImage = "/images/bar2.png";
         } else if (lives == 0) {
-            bgImage = "/Images/GameOverBg.png";
-            barImage = "/Images/bar2.png";
+            bgImage = "/images/GameOverBg.png";
+            barImage = "/images/bar2.png";
         }
 
         if (mainBackground != null) {
@@ -270,7 +270,7 @@ public class HangmanView {
         JPanel parent = (JPanel) hangmanImagePanel.getParent();
         parent.remove(hangmanImagePanel);
 
-        hangmanImagePanel = new ImagePanel("/Images/" + imageNames[index], false);
+        hangmanImagePanel = new ImagePanel("/images/" + imageNames[index], false);
         hangmanImagePanel.setOpaque(false);
         parent.add(hangmanImagePanel, BorderLayout.CENTER);
 
@@ -318,7 +318,7 @@ public class HangmanView {
 
         MainFrame mainFrame = (MainFrame) frame;
 
-        Timer delay = new Timer(3000, e -> {
+        Timer delay = new Timer(1500, e -> {
             if (game.isWordGuessed()) {
                 mainFrame.showScreen(MainFrame.WIN);
             } else {
@@ -351,7 +351,6 @@ public class HangmanView {
         if (!(frame instanceof MainFrame))
             return;
 
-        // Always go through transitionToGameOver
         transitionToGameOver();
     }
 

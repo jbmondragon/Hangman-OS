@@ -9,7 +9,7 @@ public class Home {
 
     public JPanel createHome() {
 
-        ImagePanel background = new ImagePanel("images/MainBg.png");
+        ImagePanel background = new ImagePanel("/images/MainBg.png");
         background.setLayout(new GridBagLayout());
 
         JPanel popup = new JPanel(new BorderLayout());

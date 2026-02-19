@@ -5,7 +5,7 @@ public class Opening {
     private JPanel openingPanel;
 
     public JPanel createOpening() {
-        openingPanel = new ImagePanel("/Images/MainBg.png");
+        openingPanel = new ImagePanel("/images/MainBg.png");
         return openingPanel;
     }
 }

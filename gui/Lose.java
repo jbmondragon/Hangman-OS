@@ -12,7 +12,7 @@ public class Lose {
     public JPanel createLose() {
         soundManager = SoundManager.getInstance();
 
-        ImagePanel background = new ImagePanel("/Images/GameOverBg.png");
+        ImagePanel background = new ImagePanel("/images/GameOverBg.png");
         background.setLayout(new GridBagLayout());
 
         background.addComponentListener(new java.awt.event.ComponentAdapter() {

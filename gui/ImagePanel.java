@@ -19,9 +19,9 @@ public class ImagePanel extends JPanel {
         loadMainImage(resourcePath);
 
         if (usePattern) {
-            java.net.URL patternUrl = getClass().getResource("/Images/bar.png");
+            java.net.URL patternUrl = getClass().getResource("/images/bar.png");
             if (patternUrl == null)
-                patternUrl = getClass().getResource("/Images/bar.png");
+                patternUrl = getClass().getResource("/images/bar.png");
 
             if (patternUrl != null) {
                 patternImage = new ImageIcon(patternUrl).getImage();

@@ -4,7 +4,7 @@ _This project is developed by **Jake Mondragon**, **Benedict Pagba**, **Justin M
 
 ## Overview
 
-This Hangman-OS is a classic word-guessing game with an OS-theme. The game was inspired by the operating system being infected by a virus, to save your OS you need to correctly guess the word else your operating system will be infected by a virus. You have six tries to guess the word. This game is implemented in Java.
+This HackedMan is a classic word-guessing game with an OS-theme. The game was inspired by the operating system being infected by a virus, to save your OS you need to correctly guess the word else your operating system will be infected by a virus. You have six tries to guess the word. This game is implemented in Java.
 
 ## Features
 
@@ -26,14 +26,13 @@ cd Mine-Sweeper
 
 ## 2. Open the Project in VS Code
 
-- Make sure you have the **Java Extension Pack** installed.
+- Make sure you have the **Java Extension Pack** installed and use java 21.
 - Open the `Main.java` file.
 
 To compile and run the project via terminal:
 
 ```bash
-find . -name "*.class" -type f -delete
-javac -d out $(find . -name "*.java") && java -cp "out;." Main
+find . -name "*.class" -type f -delete && javac --release 21 -d out $(find . -name "*.java") && java -cp "out;." Main
 ```
 
 ### 3️. Run the Application
@@ -42,22 +41,11 @@ You can run the game by:
 
 - Clicking the Run Java button in the top-right of VS Code
 
-### 4. Build a JAR File (Optional)
-
-- Press Ctrl + Shift + P → open the Command Palette.
-- Search: Java: Export Jar.
-- Choose `Main` as the main class.
-- Select all required files.
-- A `Hangman-OS.jar` will be generated.
-
-### 5️. Run the JAR File
-
-#### Option A: Terminal
+### 4. Create and Run a jar file
 
 ```bash
-java -jar Hangman-OS.jar
+jar cfe HackedMan.jar Main -C out .
+java -jar HackedMan.jar
 ```
 
-#### Option B: GUI
-
-Double-click the `.jar` file (Java Runtime Environment required).
+### 5. Run the .exe by double clicking the file

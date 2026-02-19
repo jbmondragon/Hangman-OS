@@ -12,7 +12,7 @@ public class About {
     public JPanel createAbout() {
         soundManager = SoundManager.getInstance();
 
-        ImagePanel background = new ImagePanel("/Images/MainBg.png");
+        ImagePanel background = new ImagePanel("/images/MainBg.png");
         background.setLayout(new GridBagLayout());
 
         background.addComponentListener(new java.awt.event.ComponentAdapter() {

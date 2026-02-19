@@ -13,7 +13,7 @@ public class Warning {
         soundManager = SoundManager.getInstance();
 
         // bg
-        ImagePanel openingPanel = new ImagePanel("/Images/MainBg.png");
+        ImagePanel openingPanel = new ImagePanel("/images/MainBg.png");
         openingPanel.setLayout(new GridBagLayout());
 
         // sound
