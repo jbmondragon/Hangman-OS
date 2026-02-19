@@ -16,8 +16,27 @@ public class Win {
         ImagePanel background = new ImagePanel("images/MainBg.png");
         background.setLayout(new GridBagLayout());
 
-        // Add component listener (optional - if you want a win sound)
-        // Currently no win sound, but you could add one later
+        // sound
+        background.addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentShown(java.awt.event.ComponentEvent e) {
+                soundManager.stopAllSounds();
+
+                Timer delayTimer = new Timer(300, ev -> {
+                    if (!soundPlayed) {
+                        soundManager.playSound(SoundManager.WIN);
+                        soundPlayed = true;
+                    }
+                });
+                delayTimer.setRepeats(false);
+                delayTimer.start();
+            }
+
+            @Override
+            public void componentHidden(java.awt.event.ComponentEvent e) {
+                soundPlayed = false;
+            }
+        });
 
         // pop-up
         JPanel popup = new JPanel(new BorderLayout());

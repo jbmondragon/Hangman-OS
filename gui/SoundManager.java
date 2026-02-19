@@ -21,7 +21,8 @@ public class SoundManager {
     public static final String S4 = "S4";
     public static final String S5 = "S5";
     public static final String S6 = "S6";
-    public static final String TITLE_PAGE = "Title-Page"; // New constant
+    public static final String TITLE_PAGE = "Title-Page";
+    public static final String WIN = "Win";
 
     private SoundManager() {
         clips = new HashMap<>();
@@ -47,7 +48,8 @@ public class SoundManager {
         loadSound(S4, "S4.wav");
         loadSound(S5, "S5.wav");
         loadSound(S6, "S6.wav");
-        loadSound(TITLE_PAGE, "Title-Page.wav"); // Load the title page sound
+        loadSound(TITLE_PAGE, "Title-Page.wav");
+        loadSound(WIN, "Win.wav");
     }
 
     private void loadSound(String key, String filename) {
