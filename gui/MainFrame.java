@@ -103,7 +103,10 @@ public class MainFrame extends JFrame {
         styleButton(close);
 
         minimize.addActionListener(e -> setState(JFrame.ICONIFIED));
-        close.addActionListener(e -> System.exit(0));
+        close.addActionListener(e -> {
+            soundManager.stopAllSounds();
+            System.exit(0);
+        });
 
         buttons.add(minimize);
         buttons.add(close);
@@ -132,7 +135,10 @@ public class MainFrame extends JFrame {
 
         setContentPane(outerWrapper);
 
+        // Show TITLE screen first (which will play the Title-Page.wav)
         cardLayout.show(cardPanel, TITLE);
+        
+        // After 8 seconds, transition to WARNING
         startDelayedTransition(WARNING, 8000);
     }
 
@@ -176,5 +182,4 @@ public class MainFrame extends JFrame {
         button.setFocusPainted(false);
         button.setBorder(javax.swing.BorderFactory.createLineBorder(Color.black));
     }
-
 }
