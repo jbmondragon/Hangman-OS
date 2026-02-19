@@ -7,11 +7,11 @@ public class Win {
 
     public JPanel createWin() {
         soundManager = SoundManager.getInstance();
-        
+
         ImagePanel background = new ImagePanel("images/MainBg.png");
         background.setLayout(new GridBagLayout());
 
-        // Pop-up
+        // Popup
         JPanel popup = new JPanel(new BorderLayout());
         popup.setPreferredSize(new Dimension(420, 260));
         popup.setBackground(new Color(230, 230, 230));
@@ -28,6 +28,7 @@ public class Win {
         close.setMargin(new Insets(2, 8, 2, 8));
         close.addActionListener(e -> {
             soundManager.stopAllSounds();
+            soundManager.playSound(SoundManager.KEYBOARD);
             JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(close);
             if (frame instanceof MainFrame) {
                 ((MainFrame) frame).showScreen(MainFrame.HOME);
@@ -39,10 +40,10 @@ public class Win {
 
         JTextArea message = new JTextArea(
                 "ACCESS GRANTED\n\n" +
-                        "You successfully\n" +
-                        "eliminated the virus.\n\n" +
-                        "THE OPERATING SYSTEM\n" +
-                        "IS NOW SAFE.");
+                "You successfully\n" +
+                "eliminated the virus.\n\n" +
+                "THE OPERATING SYSTEM\n" +
+                "IS NOW SAFE.");
         message.setEditable(false);
         message.setFont(new Font("Monospaced", Font.BOLD, 12));
         message.setBackground(new Color(245, 245, 245));
@@ -52,14 +53,13 @@ public class Win {
         messagePanel.setBackground(new Color(245, 245, 245));
         messagePanel.add(message, BorderLayout.CENTER);
 
-        // Buttons
-        // *************************************************************************************
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 8));
         buttonPanel.setBackground(new Color(230, 230, 230));
 
         JButton homeButton = new JButton("HOME");
         homeButton.addActionListener(e -> {
             soundManager.stopAllSounds();
+            soundManager.playSound(SoundManager.KEYBOARD);
             JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(homeButton);
             if (frame instanceof MainFrame) {
                 ((MainFrame) frame).showScreen(MainFrame.HOME);
@@ -69,6 +69,7 @@ public class Win {
         JButton playAgainButton = new JButton("PLAY AGAIN");
         playAgainButton.addActionListener(e -> {
             soundManager.stopAllSounds();
+            soundManager.playSound(SoundManager.KEYBOARD);
             JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(playAgainButton);
             if (frame instanceof MainFrame) {
                 ((MainFrame) frame).restartGame();
@@ -78,28 +79,22 @@ public class Win {
         Dimension btnSize = new Dimension(120, 30);
         homeButton.setPreferredSize(btnSize);
         playAgainButton.setPreferredSize(btnSize);
-
         homeButton.setFocusable(false);
         playAgainButton.setFocusable(false);
 
         buttonPanel.add(homeButton);
         buttonPanel.add(playAgainButton);
-        // *******************************************************************************************
 
-        // Pag assemble sa pop-up
         popup.add(titleBar, BorderLayout.NORTH);
         popup.add(messagePanel, BorderLayout.CENTER);
         popup.add(buttonPanel, BorderLayout.SOUTH);
 
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.weightx = 1.0;
-        gbc.weighty = 1.0;
+        gbc.gridx = 0; gbc.gridy = 0;
+        gbc.weightx = 1.0; gbc.weighty = 1.0;
         gbc.anchor = GridBagConstraints.CENTER;
 
         background.add(popup, gbc);
-
         return background;
     }
 }

@@ -1,5 +1,5 @@
-// SoundManager.java
 import java.io.File;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import javax.sound.sampled.*;
@@ -10,9 +10,7 @@ public class SoundManager {
     private boolean soundEnabled = true;
     private String currentlyPlayingLoop = null;
 
-    // Sound file paths - relative to project root
-    private static final String SOUND_PATH = "gui/sounds/";
-    
+    // Keys
     public static final String ABOUT_PAGE = "About-Page";
     public static final String FLATLINE = "Flatline-after-S6";
     public static final String HANGMAN_START = "Hangman-Start";
@@ -38,7 +36,6 @@ public class SoundManager {
     }
 
     private void loadAllSounds() {
-        // Use the exact filenames as shown in your image
         loadSound(ABOUT_PAGE, "About-Page.wav");
         loadSound(FLATLINE, "Flatline-after-S6.wav");
         loadSound(HANGMAN_START, "Hangman-Start.wav");
@@ -54,20 +51,27 @@ public class SoundManager {
 
     private void loadSound(String key, String filename) {
         try {
-            File soundFile = new File(SOUND_PATH + filename);
-            if (!soundFile.exists()) {
-                System.err.println("Sound file not found: " + soundFile.getAbsolutePath());
-                System.err.println("Current working directory: " + System.getProperty("user.dir"));
+            // Relative Filepath
+            URL url = getClass().getResource("sounds/" + filename);
+
+            if (url == null) {
+                // Fallback: Check root level (if running from different context)
+                url = getClass().getResource("/gui/sounds/" + filename);
+            }
+
+            if (url == null) {
+                System.err.println("❌ Error: Sound file not found: " + filename);
                 return;
             }
             
-            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(soundFile);
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(url);
             Clip clip = AudioSystem.getClip();
             clip.open(audioInputStream);
             clips.put(key, clip);
-            System.out.println("Loaded sound: " + key + " from " + filename);
+            //System.out.println("✅ Loaded sound: " + key);
+
         } catch (Exception e) {
-            System.err.println("Error loading sound: " + filename);
+            System.err.println("❌ Error loading sound: " + filename);
             e.printStackTrace();
         }
     }
@@ -76,39 +80,29 @@ public class SoundManager {
         if (!soundEnabled) return;
         
         Clip clip = clips.get(key);
-        if (clip == null) {
-            System.err.println("Sound not loaded: " + key);
-            return;
-        }
+        if (clip == null) return;
 
-        // Stop the clip if it's currently playing
         if (clip.isRunning()) {
             clip.stop();
         }
         
         clip.setFramePosition(0);
         clip.start();
-        System.out.println("Playing sound: " + key);
     }
 
     public void playSoundLoop(String key) {
         if (!soundEnabled) return;
         
-        // Stop current loop if any
         if (currentlyPlayingLoop != null) {
             stopSound(currentlyPlayingLoop);
         }
         
         Clip clip = clips.get(key);
-        if (clip == null) {
-            System.err.println("Sound not loaded: " + key);
-            return;
-        }
+        if (clip == null) return;
 
         clip.setFramePosition(0);
         clip.loop(Clip.LOOP_CONTINUOUSLY);
         currentlyPlayingLoop = key;
-        System.out.println("Playing loop: " + key);
     }
 
     public void stopSound(String key) {
@@ -116,7 +110,6 @@ public class SoundManager {
         if (clip != null && clip.isRunning()) {
             clip.stop();
             clip.setFramePosition(0);
-            System.out.println("Stopped sound: " + key);
         }
         if (key.equals(currentlyPlayingLoop)) {
             currentlyPlayingLoop = null;
@@ -129,7 +122,6 @@ public class SoundManager {
             if (clip != null && clip.isRunning()) {
                 clip.stop();
                 clip.setFramePosition(0);
-                System.out.println("Stopped sound: " + entry.getKey());
             }
         }
         currentlyPlayingLoop = null;
@@ -140,9 +132,5 @@ public class SoundManager {
         if (!enabled) {
             stopAllSounds();
         }
-    }
-
-    public boolean isSoundEnabled() {
-        return soundEnabled;
     }
 }
