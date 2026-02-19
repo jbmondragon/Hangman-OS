@@ -13,9 +13,16 @@ public class TitlePage extends JPanel {
     private String displayedOverview = "";
     private int overviewIndex = 0;
     private Timer typingTimer;
+    
+    // Add SoundManager and flag
+    private SoundManager soundManager;
+    private boolean soundPlayed = false;
 
     public TitlePage() {
         setBackground(Color.BLACK);
+        
+        // Initialize SoundManager
+        soundManager = SoundManager.getInstance();
 
         timer = new Timer(50, e -> {
             flicker = !flicker;
@@ -92,6 +99,29 @@ public class TitlePage extends JPanel {
     public JPanel createTitlePanel() {
         JPanel outerWrapper = new JPanel(new BorderLayout());
         outerWrapper.add(this, BorderLayout.CENTER);
+        
+        // Add component listener to play sound when panel is shown
+        outerWrapper.addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentShown(java.awt.event.ComponentEvent e) {
+                if (!soundPlayed) {
+                    // Small delay to ensure everything is loaded
+                    Timer delayTimer = new Timer(500, ev -> {
+                        soundManager.playSound(SoundManager.TITLE_PAGE);
+                        soundPlayed = true;
+                    });
+                    delayTimer.setRepeats(false);
+                    delayTimer.start();
+                }
+            }
+            
+            @Override
+            public void componentHidden(java.awt.event.ComponentEvent e) {
+                // Don't reset soundPlayed flag so it only plays once per game session
+                // This ensures it only plays on first launch
+            }
+        });
+        
         return outerWrapper;
     }
 }
