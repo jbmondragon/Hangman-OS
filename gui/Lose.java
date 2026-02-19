@@ -7,7 +7,7 @@ public class Lose {
     private SoundManager soundManager;
     private final Random rand = new Random();
     JButton close;
-    private boolean soundPlayed = false; // Add flag to track if sound has been played
+    private boolean soundPlayed = false;
 
     public JPanel createLose() {
         soundManager = SoundManager.getInstance();
@@ -15,14 +15,11 @@ public class Lose {
         ImagePanel background = new ImagePanel("images/GameOverBg.png");
         background.setLayout(new GridBagLayout());
 
-        // Add component listener to play sound when panel is shown
         background.addComponentListener(new java.awt.event.ComponentAdapter() {
             @Override
             public void componentShown(java.awt.event.ComponentEvent e) {
-                // Stop any other sounds that might be playing
                 soundManager.stopAllSounds();
-                
-                // Play Lose sound with a small delay to ensure smooth transition
+
                 Timer delayTimer = new Timer(300, ev -> {
                     if (!soundPlayed) {
                         soundManager.playSound(SoundManager.LOSE);
@@ -32,10 +29,9 @@ public class Lose {
                 delayTimer.setRepeats(false);
                 delayTimer.start();
             }
-            
+
             @Override
             public void componentHidden(java.awt.event.ComponentEvent e) {
-                // Reset flag when hidden so it plays again if shown later
                 soundPlayed = false;
             }
         });
