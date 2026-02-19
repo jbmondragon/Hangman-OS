@@ -13,7 +13,7 @@ public class Win {
         soundManager = SoundManager.getInstance();
 
         // bg
-        ImagePanel background = new ImagePanel("images/MainBg.png");
+        ImagePanel background = new ImagePanel("/Images/MainBg.png");
         background.setLayout(new GridBagLayout());
 
         // sound
