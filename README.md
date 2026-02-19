@@ -24,11 +24,16 @@ git clone https://github.com/jbmondragon/Hangman-OS.git
 cd Mine-Sweeper
 ```
 
-### 2️. Open the Project in VS Code
+## 2. Open the Project in VS Code
 
-Make sure you have the Java Extension Pack installed.
+- Make sure you have the **Java Extension Pack** installed.
+- Open the `Main.java` file.
 
-Look for the `Main.java`.
+To compile and run the project via terminal:
+
+````bash
+javac -d out $(find . -name "*.java")
+java -cp "out;." Main
 
 ### 3️. Run the Application
 
@@ -50,7 +55,7 @@ You can run the game by:
 
 ```bash
 java -jar Hangman-OS.jar
-```
+````
 
 #### Option B: GUI
 
