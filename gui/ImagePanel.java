@@ -1,3 +1,4 @@
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Image;
 import javax.swing.ImageIcon;
@@ -5,15 +6,54 @@ import javax.swing.JPanel;
 
 public class ImagePanel extends JPanel {
 
-    private Image image;
+    private Image mainImage;
+    private Image patternImage;
 
     public ImagePanel(String resourcePath) {
-        try {
-            image = new ImageIcon(
-                    getClass().getResource(resourcePath)).getImage();
-        } catch (Exception e) {
-            System.err.println("Image not found: " + resourcePath);
-            image = null;
+        this(resourcePath, true); 
+    }
+
+    public ImagePanel(String resourcePath, boolean usePattern) {
+        this.setBackground(new Color(0, 10, 60)); 
+        
+        loadMainImage(resourcePath);
+
+        if (usePattern) {
+            java.net.URL patternUrl = getClass().getResource("/images/bar.png");
+            if (patternUrl == null) patternUrl = getClass().getResource("images/bar.png");
+
+            if (patternUrl != null) {
+                patternImage = new ImageIcon(patternUrl).getImage();
+            }
+        }
+    }
+
+    // Load image
+    private void loadMainImage(String resourcePath) {
+        if (getClass().getResource("/" + resourcePath) != null) {
+            mainImage = new ImageIcon(getClass().getResource("/" + resourcePath)).getImage();
+        } else if (getClass().getResource(resourcePath) != null) {
+            mainImage = new ImageIcon(getClass().getResource(resourcePath)).getImage();
+        } else {
+            System.err.println("❌ Error: Could not find main image: " + resourcePath);
+        }
+    }
+
+    // Public method to change the background dynamically
+    public void updateBackgroundImage(String resourcePath) {
+        loadMainImage(resourcePath);
+        repaint();
+    }
+
+    public void updatePatternImage(String resourcePath) {
+        java.net.URL patternUrl = getClass().getResource("/" + resourcePath);
+        if (patternUrl == null) patternUrl = getClass().getResource(resourcePath);
+
+        if (patternUrl != null) {
+            patternImage = new ImageIcon(patternUrl).getImage();
+            repaint();
+        } else {
+            System.err.println("❌ Error: Could not find pattern image: " + resourcePath);
         }
     }
 
@@ -21,28 +61,48 @@ public class ImagePanel extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        if (image == null)
-            return;
-
         int panelW = getWidth();
         int panelH = getHeight();
 
-        int imgW = image.getWidth(this);
-        int imgH = image.getHeight(this);
+        int imgX = 0, imgY = 0, imgW = 0, imgH = 0;
+        
+        if (mainImage != null) {
+            int rawW = mainImage.getWidth(this);
+            int rawH = mainImage.getHeight(this);
+            if (rawW > 0 && rawH > 0) {
 
-        if (imgW <= 0 || imgH <= 0)
-            return;
+                double scale = Math.min((double) panelW / rawW, (double) panelH / rawH);
+                imgW = (int) (rawW * scale);
+                imgH = (int) (rawH * scale);
+                imgX = (panelW - imgW) / 2;
+                imgY = (panelH - imgH) / 2;
+            }
+        }
 
-        double scale = Math.min(
-                (double) panelW / imgW,
-                (double) panelH / imgH);
+        if (patternImage != null && patternImage.getWidth(this) > 0) {
+            
+            // Top Bar
+            if (imgY > 0) {
+                g.drawImage(patternImage, 0, 0, panelW, imgY, this);
+            }
+            
+            // Bottom Bar
+            if (imgY + imgH < panelH) {
+                g.drawImage(patternImage, 0, imgY + imgH, panelW, panelH - (imgY + imgH), this);
+            }
 
-        int drawW = (int) (imgW * scale);
-        int drawH = (int) (imgH * scale);
+            // Left Bar
+            if (imgX > 0) {
+                g.drawImage(patternImage, 0, imgY, imgX, imgH, this);
+            }
 
-        int x = (panelW - drawW) / 2;
-        int y = (panelH - drawH) / 2;
-
-        g.drawImage(image, x, y, drawW, drawH, this);
+            // Right Bar
+            if (imgX + imgW < panelW) {
+                g.drawImage(patternImage, imgX + imgW, imgY, panelW - (imgX + imgW), imgH, this);
+            }
+        }
+        if (mainImage != null && imgW > 0 && imgH > 0) {
+            g.drawImage(mainImage, imgX, imgY, imgW, imgH, this);
+        }
     }
 }
