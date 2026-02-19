@@ -12,9 +12,11 @@ public class Warning {
     public JPanel createWarning() {
         soundManager = SoundManager.getInstance();
 
+        // bg
         ImagePanel openingPanel = new ImagePanel("images/MainBg.png");
         openingPanel.setLayout(new GridBagLayout());
 
+        // sound
         openingPanel.addComponentListener(new java.awt.event.ComponentAdapter() {
             @Override
             public void componentShown(java.awt.event.ComponentEvent e) {
@@ -23,30 +25,33 @@ public class Warning {
                     soundPlayed = true;
                 }
             }
+
             @Override
             public void componentHidden(java.awt.event.ComponentEvent e) {
                 soundPlayed = false;
             }
         });
 
-        // ... (Rest of UI code) ...
+        // pop-up
         JPanel popup = new JPanel(new BorderLayout());
-        popup.setPreferredSize(new Dimension(420, 260));
-        popup.setBackground(new Color(230, 230, 230));
-        popup.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+        popup.setPreferredSize(new Dimension(460, 280));
+        popup.setBackground(Color.BLACK);
+        popup.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(255, 60, 60), 3),
+                BorderFactory.createEmptyBorder(20, 25, 20, 25)));
 
+        // title bar
         JPanel titleBar = new JPanel(new BorderLayout());
-        titleBar.setBackground(new Color(120, 150, 255));
+        titleBar.setOpaque(false);
 
-        JLabel title = new JLabel("HELP!");
-        title.setBorder(BorderFactory.createEmptyBorder(5, 8, 5, 5));
-        title.setFont(new Font("Monospaced", Font.BOLD, 16));
-        title.setForeground(new Color(139, 0, 0));
+        JLabel title = new JLabel("URGENT ALERT!");
+        title.setFont(new Font("Monospaced", Font.BOLD, 18));
+        title.setForeground(new Color(255, 60, 60));
 
-        close = new JButton("X");
-        close.setFocusable(false);
+        close = new JButton("✕");
+        styleCyberButton(close, new Color(255, 60, 60));
         close.addActionListener(e -> {
-            soundManager.playSound(SoundManager.KEYBOARD); // Sound
+            soundManager.playSound(SoundManager.KEYBOARD);
             JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(close);
             if (frame instanceof MainFrame) {
                 ((MainFrame) frame).showScreen(MainFrame.HOME);
@@ -56,23 +61,77 @@ public class Warning {
         titleBar.add(title, BorderLayout.WEST);
         titleBar.add(close, BorderLayout.EAST);
 
-        JTextArea text = new JTextArea(
-                "HELP!\nThe Operating System is under attack...\n\nGood Luck!");
-        text.setEditable(false);
-        text.setFont(new Font("Monospaced", Font.BOLD, 12));
-        text.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        text.setForeground(Color.RED);
-        text.setBackground(Color.BLACK);
+        // msg area
+        String fullMessage = "> WARNING!!!\n" +
+                "> The Operating System is under attack!\n\n" +
+                "> Save your OS immediately!\n";
 
+        JTextArea text = new JTextArea();
+        text.setEditable(false);
+        text.setFont(new Font("Monospaced", Font.BOLD, 15));
+        text.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        text.setForeground(new Color(255, 60, 60));
+        text.setBackground(Color.BLACK);
+        text.setLineWrap(true);
+        text.setWrapStyleWord(true);
+
+        // pop-up assemble
         popup.add(titleBar, BorderLayout.NORTH);
         popup.add(text, BorderLayout.CENTER);
 
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0; gbc.gridy = 0;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
         gbc.anchor = GridBagConstraints.CENTER;
-        gbc.weightx = 1.0; gbc.weighty = 1.0;
-
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
         openingPanel.add(popup, gbc);
+
+        // load effect
+        Timer typingTimer = new Timer(50, null);
+        final int[] index = { 0 };
+        typingTimer.addActionListener(e -> {
+            if (index[0] < fullMessage.length()) {
+                text.append(String.valueOf(fullMessage.charAt(index[0])));
+                index[0]++;
+            } else {
+                ((Timer) e.getSource()).stop();
+            }
+        });
+        typingTimer.start();
+
+        // flicker
+        Timer flickerTimer = new Timer(100, e -> {
+            int glow = 180 + rand.nextInt(75);
+            Color flickerColor = new Color(255, 60 + rand.nextInt(60), 60);
+            title.setForeground(flickerColor);
+            text.setForeground(flickerColor);
+        });
+        flickerTimer.start();
+
         return openingPanel;
+    }
+
+    // styles
+    private void styleCyberButton(JButton button, Color redColor) {
+        button.setFocusPainted(false);
+        button.setForeground(Color.red);
+        button.setBackground(Color.BLACK);
+        button.setBorder(BorderFactory.createLineBorder(Color.red, 2));
+        button.setFont(new Font("Monospaced", Font.BOLD, 14));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        button.setPreferredSize(new Dimension(40, 30));
+
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(Color.red);
+                button.setForeground(Color.BLACK);
+            }
+
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(Color.BLACK);
+                button.setForeground(Color.red);
+            }
+        });
     }
 }

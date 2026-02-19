@@ -26,7 +26,7 @@ public class Database {
             }
 
         } catch (FileNotFoundException e) {
-            System.out.println("File not found.");
+            System.out.println("Database.txt not found.");
             return null;
         }
 

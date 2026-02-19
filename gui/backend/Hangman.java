@@ -23,7 +23,7 @@ public class Hangman {
         }
     }
 
-    // 🎯 CALLED when a button is pressed
+    // button pressed logic
     public boolean guess(char letter) {
         int index = letter - 'a';
         if (guessedLetters[index])

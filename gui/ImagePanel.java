@@ -10,17 +10,18 @@ public class ImagePanel extends JPanel {
     private Image patternImage;
 
     public ImagePanel(String resourcePath) {
-        this(resourcePath, true); 
+        this(resourcePath, true);
     }
 
     public ImagePanel(String resourcePath, boolean usePattern) {
-        this.setBackground(new Color(0, 10, 60)); 
-        
+        this.setBackground(Color.black);
+
         loadMainImage(resourcePath);
 
         if (usePattern) {
             java.net.URL patternUrl = getClass().getResource("/images/bar.png");
-            if (patternUrl == null) patternUrl = getClass().getResource("images/bar.png");
+            if (patternUrl == null)
+                patternUrl = getClass().getResource("images/bar.png");
 
             if (patternUrl != null) {
                 patternImage = new ImageIcon(patternUrl).getImage();
@@ -35,7 +36,7 @@ public class ImagePanel extends JPanel {
         } else if (getClass().getResource(resourcePath) != null) {
             mainImage = new ImageIcon(getClass().getResource(resourcePath)).getImage();
         } else {
-            System.err.println("❌ Error: Could not find main image: " + resourcePath);
+            System.err.println("Error: Could not find main image: " + resourcePath);
         }
     }
 
@@ -47,13 +48,14 @@ public class ImagePanel extends JPanel {
 
     public void updatePatternImage(String resourcePath) {
         java.net.URL patternUrl = getClass().getResource("/" + resourcePath);
-        if (patternUrl == null) patternUrl = getClass().getResource(resourcePath);
+        if (patternUrl == null)
+            patternUrl = getClass().getResource(resourcePath);
 
         if (patternUrl != null) {
             patternImage = new ImageIcon(patternUrl).getImage();
             repaint();
         } else {
-            System.err.println("❌ Error: Could not find pattern image: " + resourcePath);
+            System.err.println("Error: Could not find pattern image: " + resourcePath);
         }
     }
 
@@ -65,7 +67,7 @@ public class ImagePanel extends JPanel {
         int panelH = getHeight();
 
         int imgX = 0, imgY = 0, imgW = 0, imgH = 0;
-        
+
         if (mainImage != null) {
             int rawW = mainImage.getWidth(this);
             int rawH = mainImage.getHeight(this);
@@ -80,12 +82,12 @@ public class ImagePanel extends JPanel {
         }
 
         if (patternImage != null && patternImage.getWidth(this) > 0) {
-            
+
             // Top Bar
             if (imgY > 0) {
                 g.drawImage(patternImage, 0, 0, panelW, imgY, this);
             }
-            
+
             // Bottom Bar
             if (imgY + imgH < panelH) {
                 g.drawImage(patternImage, 0, imgY + imgH, panelW, panelH - (imgY + imgH), this);

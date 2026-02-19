@@ -1,31 +1,39 @@
 import java.awt.*;
+import java.util.Random;
 import javax.swing.*;
 
 public class Win {
 
     private SoundManager soundManager;
+    private final Random rand = new Random();
+    JButton close;
 
     public JPanel createWin() {
         soundManager = SoundManager.getInstance();
 
+        // bg
         ImagePanel background = new ImagePanel("images/MainBg.png");
         background.setLayout(new GridBagLayout());
 
-        // Popup
+        // pop-up
         JPanel popup = new JPanel(new BorderLayout());
-        popup.setPreferredSize(new Dimension(420, 260));
-        popup.setBackground(new Color(230, 230, 230));
-        popup.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+        popup.setPreferredSize(new Dimension(460, 300));
+        popup.setBackground(Color.BLACK);
 
+        popup.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(0, 255, 120), 2),
+                BorderFactory.createEmptyBorder(20, 25, 20, 25)));
+
+        // title
         JPanel titleBar = new JPanel(new BorderLayout());
-        titleBar.setBackground(new Color(60, 180, 90));
+        titleBar.setOpaque(false);
 
         JLabel title = new JLabel("SYSTEM SECURED");
-        title.setBorder(BorderFactory.createEmptyBorder(5, 8, 5, 5));
+        title.setForeground(new Color(0, 255, 120));
+        title.setFont(new Font("Monospaced", Font.BOLD, 18));
 
-        JButton close = new JButton("X");
-        close.setFocusable(false);
-        close.setMargin(new Insets(2, 8, 2, 8));
+        close = new JButton("✕");
+        styleCyberButton(close);
         close.addActionListener(e -> {
             soundManager.stopAllSounds();
             soundManager.playSound(SoundManager.KEYBOARD);
@@ -38,25 +46,32 @@ public class Win {
         titleBar.add(title, BorderLayout.WEST);
         titleBar.add(close, BorderLayout.EAST);
 
+        // msg area
         JTextArea message = new JTextArea(
-                "ACCESS GRANTED\n\n" +
-                "You successfully\n" +
-                "eliminated the virus.\n\n" +
-                "THE OPERATING SYSTEM\n" +
-                "IS NOW SAFE.");
+                "> ACCESS GRANTED\n\n" +
+                        "> You successfully eliminated the virus.\n\n" +
+                        "> THE OPERATING SYSTEM IS NOW SAFE.");
         message.setEditable(false);
-        message.setFont(new Font("Monospaced", Font.BOLD, 12));
-        message.setBackground(new Color(245, 245, 245));
+        message.setFont(new Font("Monospaced", Font.PLAIN, 15));
+        message.setBackground(Color.BLACK);
+        message.setForeground(new Color(0, 255, 120));
+        message.setLineWrap(true);
+        message.setWrapStyleWord(true);
         message.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
         JPanel messagePanel = new JPanel(new BorderLayout());
-        messagePanel.setBackground(new Color(245, 245, 245));
+        messagePanel.setOpaque(false);
         messagePanel.add(message, BorderLayout.CENTER);
 
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 8));
-        buttonPanel.setBackground(new Color(230, 230, 230));
+        // buttons
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 15));
+        buttonPanel.setOpaque(false);
 
         JButton homeButton = new JButton("HOME");
+        JButton playAgainButton = new JButton("PLAY AGAIN");
+        styleCyberButton(homeButton);
+        styleCyberButton(playAgainButton);
+
         homeButton.addActionListener(e -> {
             soundManager.stopAllSounds();
             soundManager.playSound(SoundManager.KEYBOARD);
@@ -66,7 +81,6 @@ public class Win {
             }
         });
 
-        JButton playAgainButton = new JButton("PLAY AGAIN");
         playAgainButton.addActionListener(e -> {
             soundManager.stopAllSounds();
             soundManager.playSound(SoundManager.KEYBOARD);
@@ -76,25 +90,54 @@ public class Win {
             }
         });
 
-        Dimension btnSize = new Dimension(120, 30);
-        homeButton.setPreferredSize(btnSize);
-        playAgainButton.setPreferredSize(btnSize);
-        homeButton.setFocusable(false);
-        playAgainButton.setFocusable(false);
-
         buttonPanel.add(homeButton);
         buttonPanel.add(playAgainButton);
 
+        // pop-up
         popup.add(titleBar, BorderLayout.NORTH);
         popup.add(messagePanel, BorderLayout.CENTER);
         popup.add(buttonPanel, BorderLayout.SOUTH);
 
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0; gbc.gridy = 0;
-        gbc.weightx = 1.0; gbc.weighty = 1.0;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
         gbc.anchor = GridBagConstraints.CENTER;
-
         background.add(popup, gbc);
+
+        // flicker effect
+        Timer flickerTimer = new Timer(120, e -> {
+            int glow = 200 + rand.nextInt(55);
+            Color flickerColor = new Color(0, glow, 120);
+            title.setForeground(flickerColor);
+            message.setForeground(flickerColor);
+        });
+        flickerTimer.start();
+
         return background;
+    }
+
+    // styles
+    private void styleCyberButton(JButton button) {
+        button.setFocusPainted(false);
+        button.setForeground(new Color(0, 255, 120));
+        button.setBackground(Color.BLACK);
+        button.setBorder(BorderFactory.createLineBorder(new Color(0, 255, 120)));
+        button.setFont(new Font("Monospaced", Font.BOLD, 14));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        button.setPreferredSize(new Dimension(140, 35));
+
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(0, 255, 120));
+                button.setForeground(Color.BLACK);
+            }
+
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(Color.BLACK);
+                button.setForeground(new Color(0, 255, 120));
+            }
+        });
     }
 }
