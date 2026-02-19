@@ -11,34 +11,30 @@ public class Warning {
 
     public JPanel createWarning() {
         soundManager = SoundManager.getInstance();
-        
+
         ImagePanel openingPanel = new ImagePanel("images/MainBg.png");
         openingPanel.setLayout(new GridBagLayout());
 
-        // Add component listener to play sound when warning panel is shown
         openingPanel.addComponentListener(new java.awt.event.ComponentAdapter() {
             @Override
             public void componentShown(java.awt.event.ComponentEvent e) {
                 if (!soundPlayed) {
-                    // Play About-Page sound when HELP! pop-up shows
                     soundManager.playSound(SoundManager.ABOUT_PAGE);
                     soundPlayed = true;
                 }
             }
-            
             @Override
             public void componentHidden(java.awt.event.ComponentEvent e) {
-                // Reset flag when hidden
                 soundPlayed = false;
             }
         });
 
+        // ... (Rest of UI code) ...
         JPanel popup = new JPanel(new BorderLayout());
         popup.setPreferredSize(new Dimension(420, 260));
         popup.setBackground(new Color(230, 230, 230));
         popup.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
 
-        // ---- TITLE BAR ----
         JPanel titleBar = new JPanel(new BorderLayout());
         titleBar.setBackground(new Color(120, 150, 255));
 
@@ -50,6 +46,7 @@ public class Warning {
         close = new JButton("X");
         close.setFocusable(false);
         close.addActionListener(e -> {
+            soundManager.playSound(SoundManager.KEYBOARD); // Sound
             JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(close);
             if (frame instanceof MainFrame) {
                 ((MainFrame) frame).showScreen(MainFrame.HOME);
@@ -59,7 +56,6 @@ public class Warning {
         titleBar.add(title, BorderLayout.WEST);
         titleBar.add(close, BorderLayout.EAST);
 
-        // ---- MESSAGE ----
         JTextArea text = new JTextArea(
                 "HELP!\nThe Operating System is under attack...\n\nGood Luck!");
         text.setEditable(false);
@@ -67,18 +63,14 @@ public class Warning {
         text.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         text.setForeground(Color.RED);
         text.setBackground(Color.BLACK);
-        text.setForeground(Color.RED);
 
         popup.add(titleBar, BorderLayout.NORTH);
         popup.add(text, BorderLayout.CENTER);
 
-        // ---- CENTER POPUP ----
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 0;
+        gbc.gridx = 0; gbc.gridy = 0;
         gbc.anchor = GridBagConstraints.CENTER;
-        gbc.weightx = 1.0;
-        gbc.weighty = 1.0;
+        gbc.weightx = 1.0; gbc.weighty = 1.0;
 
         openingPanel.add(popup, gbc);
         return openingPanel;

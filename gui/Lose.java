@@ -4,30 +4,15 @@ import javax.swing.*;
 public class Lose {
 
     private SoundManager soundManager;
-    private boolean soundPlayed = false;
 
     public JPanel createLose() {
+        // --- FIX: Initialize SoundManager ---
         soundManager = SoundManager.getInstance();
-        
-        ImagePanel background = new ImagePanel("images/GameOverBg.png");
-        background.setLayout(new GridBagLayout());
 
-        // Add component listener to play sound only when panel is shown
-        background.addComponentListener(new java.awt.event.ComponentAdapter() {
-            @Override
-            public void componentShown(java.awt.event.ComponentEvent e) {
-                if (!soundPlayed) {
-                    soundManager.playSound(SoundManager.LOSE);
-                    soundPlayed = true;
-                }
-            }
-            
-            @Override
-            public void componentHidden(java.awt.event.ComponentEvent e) {
-                // Reset flag when hidden so it plays again if shown later
-                soundPlayed = false;
-            }
-        });
+        ImagePanel background = new ImagePanel("images/GameOverBg.png");
+        background.updatePatternImage("images/bar2.png"); 
+        
+        background.setLayout(new GridBagLayout());
 
         JPanel popup = new JPanel(new BorderLayout());
         popup.setPreferredSize(new Dimension(420, 260));
@@ -46,6 +31,7 @@ public class Lose {
         close.setMargin(new Insets(2, 8, 2, 8));
         close.addActionListener(e -> {
             soundManager.stopAllSounds();
+            soundManager.playSound(SoundManager.KEYBOARD);
             JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(close);
             if (frame instanceof MainFrame) {
                 ((MainFrame) frame).showScreen(MainFrame.HOME);
@@ -57,10 +43,10 @@ public class Lose {
 
         JTextArea message = new JTextArea(
                 "CRITICAL ERROR!\n\n" +
-                        "The virus has\n" +
-                        "infected the system.\n\n" +
-                        "OPERATING SYSTEM\n" +
-                        "HAS BEEN COMPROMISED.");
+                "The virus has\n" +
+                "infected the system.\n\n" +
+                "OPERATING SYSTEM\n" +
+                "HAS BEEN COMPROMISED.");
         message.setEditable(false);
         message.setFont(new Font("Monospaced", Font.BOLD, 12));
         message.setBackground(new Color(245, 245, 245));
@@ -76,6 +62,7 @@ public class Lose {
         JButton homeButton = new JButton("HOME");
         homeButton.addActionListener(e -> {
             soundManager.stopAllSounds();
+            soundManager.playSound(SoundManager.KEYBOARD);
             JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(homeButton);
             if (frame instanceof MainFrame) {
                 ((MainFrame) frame).showScreen(MainFrame.HOME);
@@ -85,6 +72,7 @@ public class Lose {
         JButton playAgainButton = new JButton("PLAY AGAIN");
         playAgainButton.addActionListener(e -> {
             soundManager.stopAllSounds();
+            soundManager.playSound(SoundManager.KEYBOARD);
             JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(playAgainButton);
             if (frame instanceof MainFrame) {
                 ((MainFrame) frame).restartGame();
@@ -94,27 +82,22 @@ public class Lose {
         Dimension btnSize = new Dimension(120, 30);
         homeButton.setPreferredSize(btnSize);
         playAgainButton.setPreferredSize(btnSize);
-
         homeButton.setFocusable(false);
         playAgainButton.setFocusable(false);
 
         buttonPanel.add(homeButton);
         buttonPanel.add(playAgainButton);
 
-        // Pag assemble sa pop-up
         popup.add(titleBar, BorderLayout.NORTH);
         popup.add(messagePanel, BorderLayout.CENTER);
         popup.add(buttonPanel, BorderLayout.SOUTH);
 
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.weightx = 1.0;
-        gbc.weighty = 1.0;
+        gbc.gridx = 0; gbc.gridy = 0;
+        gbc.weightx = 1.0; gbc.weighty = 1.0;
         gbc.anchor = GridBagConstraints.CENTER;
 
         background.add(popup, gbc);
-
         return background;
     }
 }

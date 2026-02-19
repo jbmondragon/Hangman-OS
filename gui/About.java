@@ -8,11 +8,11 @@ public class About {
 
     public JPanel createAbout() {
         soundManager = SoundManager.getInstance();
-        
+
         ImagePanel background = new ImagePanel("images/MainBg.png");
         background.setLayout(new GridBagLayout());
 
-        // Add component listener to play sound only when panel is shown
+         // Add component listener to play sound only when panel is shown
         background.addComponentListener(new java.awt.event.ComponentAdapter() {
             @Override
             public void componentShown(java.awt.event.ComponentEvent e) {
@@ -24,7 +24,6 @@ public class About {
             
             @Override
             public void componentHidden(java.awt.event.ComponentEvent e) {
-                // Reset flag when hidden so it plays again if shown later
                 soundPlayed = false;
             }
         });
@@ -72,11 +71,13 @@ public class About {
         messagePanel.add(message, BorderLayout.CENTER);
 
         // Buttons
+        // ************************************************************************************************************
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 8));
         buttonPanel.setBackground(new Color(230, 230, 230));
 
         JButton homeButton = new JButton("HOME");
         homeButton.addActionListener(e -> {
+            soundManager.playSound(SoundManager.KEYBOARD);
             JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(close);
             if (frame instanceof MainFrame) {
                 ((MainFrame) frame).showScreen(MainFrame.HOME);
@@ -85,6 +86,7 @@ public class About {
 
         JButton exitButton = new JButton("EXIT");
         exitButton.addActionListener(e -> {
+            soundManager.playSound(SoundManager.KEYBOARD);
             JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(close);
             if (frame instanceof MainFrame) {
                 ((MainFrame) frame).showScreen(MainFrame.HOME);
@@ -100,6 +102,8 @@ public class About {
 
         buttonPanel.add(homeButton);
         buttonPanel.add(exitButton);
+
+        // ************************************************************************************************************
 
         // Pag assemble sa pop-up
         popup.add(titleBar, BorderLayout.NORTH);
