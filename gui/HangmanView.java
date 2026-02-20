@@ -91,7 +91,7 @@ public class HangmanView {
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         wordLabel = new JLabel(game.getGuessedWord(), SwingConstants.CENTER);
-        wordLabel.setFont(new Font("Monospaced", Font.BOLD, 32));
+        wordLabel.setFont(new Font("Monospaced", Font.BOLD, 14));
         wordLabel.setForeground(Color.BLACK);
 
         livesLabel = new JLabel("Lives Remaining: " + game.getRemainingAttempts(), SwingConstants.CENTER);
