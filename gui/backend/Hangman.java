@@ -19,7 +19,11 @@ public class Hangman {
 
     private void initializeGuessedWord() {
         for (int i = 0; i < guessedWord.length; i++) {
-            guessedWord[i] = '_';
+            if(wordToGuess.charAt(i) == ' '){
+                guessedWord[i] = ' ';
+            } else {
+                guessedWord[i] = '_';
+            }
         }
     }
 
