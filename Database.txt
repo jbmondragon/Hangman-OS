@@ -1,7 +1,49 @@
-Guess
-the
-word
-secret
-animal
-true
-false
+Users
+Operating System
+Computer System
+Single User
+Batch OS
+Application Programs
+Resource Allocator
+Control Program
+Intermediary
+Batch OS
+Interactive
+Graphics
+Hardware
+Software
+Traps
+Interrupts
+BIOS
+Buses
+Boot Process
+Storage Devices
+CPU
+Vacuum Tubes
+Transistors
+Spooling
+Multiprogramming
+LSI Circuits
+Plugboards
+Assembly Language
+Monolithic System
+Layered System
+Client Server
+Virtual Machines
+Shell
+Address Spaces
+Protection
+Directory Management
+File Management
+Process Management
+Windows API
+System Call
+Microkernel
+Exokernel
+Unikernel
+Input
+Output
+Process
+Execution
+Scheduling
+Security
