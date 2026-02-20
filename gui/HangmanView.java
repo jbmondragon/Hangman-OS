@@ -25,7 +25,7 @@ public class HangmanView {
     private Timer s6SoundTimer;
     private Timer flatlineTimer;
     private Timer gameOverTransitionTimer;
-    private Timer winTransitionTimer; // Added win delay timer
+    private Timer winTransitionTimer; 
     private String currentHangmanSound = null;
     private boolean isS6Playing = false;
     private boolean gameOverTriggered = false;
@@ -337,6 +337,7 @@ public class HangmanView {
     }
 
     private void transitionToGameOver() {
+        if (!isS6Playing) return;
         stopS6Timers();
 
         JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(mainPanel);
@@ -366,6 +367,7 @@ public class HangmanView {
         isS6Playing = false;
     }
 
+    // --- FIX: Prevents the S6 sound sequence from being interrupted! ---
     private void handleGameOver(JPanel main) {
         if (isS6Playing || gameOverTriggered) return;
         
@@ -394,6 +396,7 @@ public class HangmanView {
             winTransitionTimer.start();
         }
     }
+    // ------------------------------------------------------------------
 
     private void disableKeyboard() {
         for (JButton b : buttons)
