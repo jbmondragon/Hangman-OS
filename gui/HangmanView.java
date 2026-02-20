@@ -178,6 +178,11 @@ public class HangmanView {
                 if (current - lastTime < minimum)
                     return;
 
+                // Don't process if game is over or S6 is playing
+                if (gameOverTriggered || isS6Playing) {
+                    return;
+                }
+
                 String event = e.getActionCommand();
                 char letter = Character.toLowerCase(event.charAt(0));
                 int index = letter - 'a';
@@ -187,7 +192,7 @@ public class HangmanView {
                     buttons[index].setEnabled(false);
                     game.guess(letter);
                     updateUI();
-                    if (game.isGameOver())
+                    if (game.isGameOver() && !isS6Playing)
                         handleGameOver(main);
                 }
                 lastTime = current;
@@ -221,12 +226,17 @@ public class HangmanView {
 
             char letter = Character.toLowerCase(c);
             buttons[index].addActionListener(e -> {
+                // Don't process if game is over or S6 is playing
+                if (gameOverTriggered || isS6Playing) {
+                    return;
+                }
+                
                 if (soundManager != null)
                     soundManager.playSound(SoundManager.KEYBOARD);
                 buttons[index].setEnabled(false);
                 game.guess(letter);
                 updateUI();
-                if (game.isGameOver())
+                if (game.isGameOver() && !isS6Playing)
                     handleGameOver(main);
             });
 
@@ -278,45 +288,68 @@ public class HangmanView {
         if (index > 6)
             index = 6;
 
-        if (isS6Playing && index != 6)
-            stopS6Timers();
-
-        if (currentHangmanSound != null && soundManager != null)
+        // Stop previous hangman sound if playing
+        if (currentHangmanSound != null && soundManager != null) {
             soundManager.stopSound(currentHangmanSound);
-
-        if (index > 0 && index <= 6 && soundManager != null) {
-            currentHangmanSound = soundNames[index];
-            if (index == 6)
-                handleS6Sound();
-            else
-                soundManager.playSoundLoop(currentHangmanSound);
+            currentHangmanSound = null;
         }
 
+        // Update the image panel first
         JPanel parent = (JPanel) hangmanImagePanel.getParent();
         parent.remove(hangmanImagePanel);
-
         hangmanImagePanel = new ImagePanel("images/" + imageNames[index], false);
         hangmanImagePanel.setOpaque(false);
         parent.add(hangmanImagePanel, BorderLayout.CENTER);
-
         parent.revalidate();
         parent.repaint();
+
+        // Handle sounds based on index
+        if (index > 0 && index <= 6 && soundManager != null) {
+            if (index == 6) {
+                // Special handling for S6 - this will play S6 then flatline
+                handleS6Sound();
+            } else {
+                // For S1-S5, play in a continuous loop
+                currentHangmanSound = soundNames[index];
+                soundManager.playSoundLoop(currentHangmanSound);
+            }
+        }
     }
 
     private void handleS6Sound() {
+        // Prevent multiple S6 sound triggers
+        if (isS6Playing) {
+            return;
+        }
+        
+        System.out.println("Starting S6 sequence...");
         isS6Playing = true;
         gameOverTriggered = true;
         disableKeyboard();
 
-        if (soundManager != null)
+        // Stop any other sounds
+        if (soundManager != null) {
+            soundManager.stopAllSounds();
+            
+            // Play S6 sound
+            System.out.println("Playing S6.wav");
             soundManager.playSound(SoundManager.S6);
+        }
 
+        // Schedule Flatline to play after S6 finishes
         s6SoundTimer = new Timer(S6_SOUND_DURATION, e -> {
-            if (soundManager != null)
+            System.out.println("Playing Flatline-after-S6.wav");
+            if (soundManager != null) {
                 soundManager.playSound(SoundManager.FLATLINE);
+            }
 
+            // Schedule transition to game over after flatline finishes
             flatlineTimer = new Timer(FLATLINE_DURATION, e2 -> {
-                gameOverTransitionTimer = new Timer(2000, e3 -> transitionToGameOver());
+                System.out.println("Flatline finished, preparing transition...");
+                gameOverTransitionTimer = new Timer(2000, e3 -> {
+                    System.out.println("Transitioning to game over screen");
+                    transitionToGameOver();
+                });
                 gameOverTransitionTimer.setRepeats(false);
                 gameOverTransitionTimer.start();
             });
@@ -326,15 +359,22 @@ public class HangmanView {
         s6SoundTimer.setRepeats(false);
         s6SoundTimer.start();
 
-        s6DisplayTimer = new Timer(S6_TOTAL_DISPLAY_TIME, e -> {
-            if (isS6Playing)
+        // Backup timer to ensure transition happens even if something goes wrong
+        s6DisplayTimer = new Timer(S6_TOTAL_DISPLAY_TIME + 1000, e -> {
+            if (isS6Playing) {
+                System.out.println("Backup timer triggered transition");
                 transitionToGameOver();
+            }
         });
         s6DisplayTimer.setRepeats(false);
         s6DisplayTimer.start();
     }
 
     private void transitionToGameOver() {
+        if (!isS6Playing) {
+            return;
+        }
+        
         stopS6Timers();
 
         JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(mainPanel);
@@ -343,15 +383,11 @@ public class HangmanView {
 
         MainFrame mainFrame = (MainFrame) frame;
 
-        Timer delay = new Timer(3000, e -> {
-            if (game.isWordGuessed()) {
-                mainFrame.showScreen(MainFrame.WIN);
-            } else {
-                mainFrame.showScreen(MainFrame.LOSE);
-            }
-        });
-        delay.setRepeats(false);
-        delay.start();
+        if (game.isWordGuessed()) {
+            mainFrame.showScreen(MainFrame.WIN);
+        } else {
+            mainFrame.showScreen(MainFrame.LOSE);
+        }
     }
 
     private void stopS6Timers() {
@@ -367,17 +403,34 @@ public class HangmanView {
     }
 
     private void handleGameOver(JPanel main) {
+        // If we're already handling S6, don't do anything
+        if (isS6Playing) {
+            return;
+        }
+
+        // Check if this is a loss with 0 attempts (S6 case)
+        if (game.getRemainingAttempts() <= 0 && !game.isWordGuessed()) {
+            // Update UI which will trigger handleS6Sound
+            updateUI();
+            return;
+        }
+
+        // For win cases
         disableKeyboard();
-        stopS6Timers();
-        if (currentHangmanSound != null && soundManager != null)
+        
+        if (currentHangmanSound != null && soundManager != null) {
             soundManager.stopSound(currentHangmanSound);
+        }
 
         JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(main);
         if (!(frame instanceof MainFrame))
             return;
 
-        // Always go through transitionToGameOver
-        transitionToGameOver();
+        MainFrame mainFrame = (MainFrame) frame;
+        
+        if (game.isWordGuessed()) {
+            mainFrame.showScreen(MainFrame.WIN);
+        }
     }
 
     private void disableKeyboard() {
