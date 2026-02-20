@@ -4,14 +4,15 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
+import javax.swing.text.*; 
 
 public class HangmanView {
 
     Hangman game;
     Database db = new Database();
-    private SoundManager soundManager; // Declared but was not initialized
+    private SoundManager soundManager;
 
-    private JLabel wordLabel;
+    private JTextPane wordLabel; 
     private JLabel livesLabel;
     private ImagePanel hangmanImagePanel;
     private ImagePanel mainBackground;
@@ -20,28 +21,28 @@ public class HangmanView {
     private static long lastTime = 0;
     private static final long minimum = 200;
 
-    // Timers for S6 and flatline synchronization
+    // Timers for animations and delays
     private Timer s6DisplayTimer;
     private Timer s6SoundTimer;
     private Timer flatlineTimer;
     private Timer gameOverTransitionTimer;
+    private Timer winTransitionTimer; 
+    
     private String currentHangmanSound = null;
     private boolean isS6Playing = false;
-    private boolean gameOverTriggered = false;
+    private boolean gameOverTriggered = false; 
     
-    // FIX 2: Ensure this variable is actually used/assigned
     private JPanel mainPanel; 
 
     // Sound durations (in milliseconds)
-    private static final int S6_SOUND_DURATION = 2000; // S6.wav is 2 seconds
-    private static final int FLATLINE_DURATION = 2000; // Flatline.wav is 2 seconds
-    private static final int S6_TOTAL_DISPLAY_TIME = 6000; // 6 seconds total for S6.gif
+    private static final int S6_SOUND_DURATION = 2000; 
+    private static final int FLATLINE_DURATION = 2000; 
+    private static final int S6_TOTAL_DISPLAY_TIME = 6000; 
 
     // Window panels
     private RetroWindow[] windows;
 
     public JPanel createHangmanPanel() {
-        // FIX 1: Initialize the SoundManager!
         soundManager = SoundManager.getInstance();
         
         String word = db.getRandomWord();
@@ -49,8 +50,6 @@ public class HangmanView {
         game = new Hangman(word);
 
         mainBackground = new ImagePanel("images/MainBg.png"); 
-        
-        // FIX 2: Assign mainBackground to mainPanel so transitionToGameOver can find the frame
         mainPanel = mainBackground;
     
         mainBackground.setLayout(null);
@@ -65,7 +64,7 @@ public class HangmanView {
         RetroWindow virusWindow = new RetroWindow("VIRUS.exe", virusContent, 525, 115, 325, 320);
         RetroWindow keyboardWindow = new RetroWindow("KEYBOARD.exe", keyboardContent, 90, 450, 800, 200);
 
-        // Visibility set to 0
+        // --- RESTORED: Hide windows initially so the animation can play ---
         guessWindow.setVisible(false);
         virusWindow.setVisible(false);
         keyboardWindow.setVisible(false);
@@ -76,12 +75,12 @@ public class HangmanView {
 
         windows = new RetroWindow[]{guessWindow, virusWindow, keyboardWindow};
 
+        // --- RESTORED: Start the initial pop-up animation ---
         startFadeInAnimation();
 
         return mainBackground;
     }
 
-    // Pop In Animation for Windows
     private void startFadeInAnimation() {
         Timer timer = new Timer(300, null);
         final int[] index = {0};
@@ -98,27 +97,49 @@ public class HangmanView {
         timer.start();
     }
 
-    // Word to be guessed
     private JPanel createGuessContent() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(new Color(220, 220, 220));
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        wordLabel = new JLabel(game.getGuessedWord(), SwingConstants.CENTER);
-        wordLabel.setFont(new Font("Monospaced", Font.BOLD, 32));
+        wordLabel = new JTextPane();
+        wordLabel.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true);
+        wordLabel.setFont(new Font("Monospaced", Font.BOLD, 20)); 
+        
+        wordLabel.setEditable(false);
+        wordLabel.setOpaque(false);
+        wordLabel.setFocusable(false);
         wordLabel.setForeground(Color.BLACK);
+        
+        wordLabel.setText(game.getGuessedWord());
+        applyStrictTextStyles();
+
+        JPanel wordWrapper = new JPanel(new GridBagLayout());
+        wordWrapper.setOpaque(false);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 1.0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        wordWrapper.add(wordLabel, gbc);
 
         livesLabel = new JLabel("Lives Remaining: " + game.getRemainingAttempts(), SwingConstants.CENTER);
         livesLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
         livesLabel.setForeground(new Color(150, 0, 0));
         livesLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
 
-        panel.add(wordLabel, BorderLayout.CENTER);
+        panel.add(wordWrapper, BorderLayout.CENTER);
         panel.add(livesLabel, BorderLayout.SOUTH);
         return panel;
     }
 
-    // Stickman animation
+    private void applyStrictTextStyles() {
+        StyledDocument doc = wordLabel.getStyledDocument();
+        SimpleAttributeSet styles = new SimpleAttributeSet();
+        StyleConstants.setAlignment(styles, StyleConstants.ALIGN_CENTER);
+        doc.setParagraphAttributes(0, doc.getLength(), styles, false);
+    }
+
     private JPanel createVirusContent() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(Color.WHITE);
@@ -130,14 +151,12 @@ public class HangmanView {
         return panel;
     }
 
-    // Keyboard
     private JPanel createKeyboardContent(JPanel main) {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(new Color(220, 220, 220));
 
         keyboardPanel = createKeys(main);
         
-        // Restart/Home Button
         JPanel controlBar = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         controlBar.setBackground(new Color(200, 200, 200));
         controlBar.setBorder(BorderFactory.createEtchedBorder());
@@ -158,7 +177,6 @@ public class HangmanView {
         return panel;
     }
 
-    // Grid for the keys
     private JPanel createKeys(JPanel main) {
         JPanel keyboard = new JPanel(new GridLayout(3, 9, 4, 4));
         keyboard.setBackground(new Color(192, 192, 192));
@@ -175,7 +193,6 @@ public class HangmanView {
                 char letter = Character.toLowerCase(c);
                 int count = letter - 'a';
                 if(count >= 0 && count < 26 && buttons[count].isEnabled()) {
-                    // Play sound when button is pressed
                     if(soundManager != null) soundManager.playSound(SoundManager.KEYBOARD);
                     
                     buttons[count].setEnabled(false);
@@ -200,7 +217,6 @@ public class HangmanView {
             
             char letter = Character.toLowerCase(c);
             buttons[index].addActionListener(e -> {
-                // Play sound on click
                 if(soundManager != null) soundManager.playSound(SoundManager.KEYBOARD);
 
                 buttons[index].setEnabled(false);
@@ -209,7 +225,6 @@ public class HangmanView {
                 if (game.isGameOver()) handleGameOver(main);
             });
 
-            // Keybinds
             String actionMapKey = "press" + c;
             KeyStroke keyStroke = KeyStroke.getKeyStroke(c, 0);
             im.put(keyStroke, actionMapKey);
@@ -222,22 +237,16 @@ public class HangmanView {
 
     private void handleS6Sound() {
         isS6Playing = true;
-        gameOverTriggered = true; // Mark that game is over but we're showing animation
-        
-        // Disable keyboard immediately
+        gameOverTriggered = true; 
         disableKeyboard();
         
-        // First, play S6.wav (2 seconds)
         if(soundManager != null) soundManager.playSound(SoundManager.S6);
         
-        // Schedule Flatline-after-S6 to play immediately after S6 finishes
         s6SoundTimer = new Timer(S6_SOUND_DURATION, e -> {
             if(soundManager != null) soundManager.playSound(SoundManager.FLATLINE);
             
-            // Schedule the transition to game over screen after flatline finishes
             flatlineTimer = new Timer(FLATLINE_DURATION, e2 -> {
-                // After flatline finishes, wait a bit more then transition
-                gameOverTransitionTimer = new Timer(2000, e3 -> { // Remaining 2 seconds of S6 display
+                gameOverTransitionTimer = new Timer(2000, e3 -> { 
                     transitionToGameOver();
                 });
                 gameOverTransitionTimer.setRepeats(false);
@@ -249,9 +258,7 @@ public class HangmanView {
         s6SoundTimer.setRepeats(false);
         s6SoundTimer.start();
         
-        // Set a timer for the total S6 display duration (6 seconds) as backup
         s6DisplayTimer = new Timer(S6_TOTAL_DISPLAY_TIME, e -> {
-            // If we haven't transitioned yet for some reason, do it now
             if (isS6Playing) {
                 transitionToGameOver();
             }
@@ -260,15 +267,12 @@ public class HangmanView {
         s6DisplayTimer.start();
     }
 
-    // Transition to appropriate game over screen
     private void transitionToGameOver() {
-        if (!isS6Playing) return; // Already transitioned
-        
+        if (!isS6Playing) return; 
         stopS6Timers();
         
         JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(mainPanel);
-        if (!(frame instanceof MainFrame))
-            return;
+        if (!(frame instanceof MainFrame)) return;
 
         MainFrame mainFrame = (MainFrame) frame;
         
@@ -279,25 +283,19 @@ public class HangmanView {
         }
     }
 
-    // Stop all S6-related timers
     private void stopS6Timers() {
-        if (s6SoundTimer != null && s6SoundTimer.isRunning()) {
-            s6SoundTimer.stop();
-        }
-        if (flatlineTimer != null && flatlineTimer.isRunning()) {
-            flatlineTimer.stop();
-        }
-        if (s6DisplayTimer != null && s6DisplayTimer.isRunning()) {
-            s6DisplayTimer.stop();
-        }
-        if (gameOverTransitionTimer != null && gameOverTransitionTimer.isRunning()) {
-            gameOverTransitionTimer.stop();
-        }
+        if (s6SoundTimer != null && s6SoundTimer.isRunning()) s6SoundTimer.stop();
+        if (flatlineTimer != null && flatlineTimer.isRunning()) flatlineTimer.stop();
+        if (s6DisplayTimer != null && s6DisplayTimer.isRunning()) s6DisplayTimer.stop();
+        if (gameOverTransitionTimer != null && gameOverTransitionTimer.isRunning()) gameOverTransitionTimer.stop();
+        if (winTransitionTimer != null && winTransitionTimer.isRunning()) winTransitionTimer.stop(); 
         isS6Playing = false;
     }
 
     private void updateUI() {
         wordLabel.setText(game.getGuessedWord());
+        applyStrictTextStyles(); 
+
         livesLabel.setText("Lives: " + game.getRemainingAttempts());
         
         int lives = game.getRemainingAttempts();
@@ -328,37 +326,29 @@ public class HangmanView {
             mainBackground.updatePatternImage(barImage);
         }
 
-        // Stickman gifs
         String[] imageNames = {"S0.gif", "S1.gif", "S2.gif", "S3.gif", "S4.gif", "S5.gif", "S6.gif"};
         String[] soundNames = {null, SoundManager.S1, SoundManager.S2, SoundManager.S3, 
                                 SoundManager.S4, SoundManager.S5, SoundManager.S6};
         int index = 6 - game.getRemainingAttempts();
         if(index > 6) index = 6;
 
-        // Stop all S6-related timers if we're leaving S6
         if (isS6Playing && index != 6) {
             stopS6Timers();
         }
         
-        // Stop previous hangman sound if playing
         if (currentHangmanSound != null && soundManager != null) {
             soundManager.stopSound(currentHangmanSound);
         }
         
-        // Play new hangman sound if index > 0 (S1 to S6)
         if (index > 0 && index <= 6 && soundManager != null) {
             currentHangmanSound = soundNames[index];
-            
             if (index == 6) {
-                // Special handling for S6
                 handleS6Sound();
             } else {
-                // For S1-S5, play in a continuous loop
                 soundManager.playSoundLoop(currentHangmanSound);
             }
         }
         
-        // Update the image panel
         JPanel parent = (JPanel) hangmanImagePanel.getParent();
         parent.remove(hangmanImagePanel);
         
@@ -370,38 +360,33 @@ public class HangmanView {
         parent.repaint();
     }
 
-    // Handle end of game
     private void handleGameOver(JPanel main) {
-        // If we're already handling S6, don't do anything
-        if (isS6Playing) {
-            return;
-        }
+        if (isS6Playing || gameOverTriggered) return;
         
-        // Check if this is a loss with 0 attempts (S6 case)
         if (game.getRemainingAttempts() <= 0 && !game.isWordGuessed()) {
-            // This will trigger S6 display
-            updateUI(); // This will call handleS6Sound() through updateUI
+            updateUI(); 
             return;
         }
         
-        // For win cases or other game over scenarios
+        gameOverTriggered = true; 
         disableKeyboard();
         
-        // Stop any playing hangman sounds
         if (currentHangmanSound != null && soundManager != null) {
             soundManager.stopSound(currentHangmanSound);
         }
 
         JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(main);
-        if (!(frame instanceof MainFrame))
-            return;
+        if (!(frame instanceof MainFrame)) return;
 
         MainFrame mainFrame = (MainFrame) frame;
         
         if (game.isWordGuessed()) {
-            mainFrame.showScreen(MainFrame.WIN);
+            winTransitionTimer = new Timer(2000, e -> {
+                mainFrame.showScreen(MainFrame.WIN);
+            });
+            winTransitionTimer.setRepeats(false);
+            winTransitionTimer.start();
         }
-        // Note: Loss with remaining attempts doesn't happen since we handle S6 above
     }
 
     private void disableKeyboard() {
@@ -410,14 +395,35 @@ public class HangmanView {
         }
     }
 
+    // --- INSTANT IN-PLACE RESTART ---
     private void restartGame(JPanel main) {
-        JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(main);
-        if (frame instanceof MainFrame) ((MainFrame) frame).restartGame();
+        // 1. Stop Sounds and Timers
+        if (soundManager != null) soundManager.stopAllSounds();
+        stopS6Timers();
+
+        // 2. Reset Game State variables
+        gameOverTriggered = false;
+        isS6Playing = false;
+        currentHangmanSound = null;
+
+        // 3. Initialize a fresh game with a new word
+        String word = db.getRandomWord();
+        if (word == null) word = "error";
+        game = new Hangman(word);
+
+        // 4. Re-enable all keyboard buttons
+        for (JButton b : buttons) {
+            if (b != null) {
+                b.setEnabled(true);
+            }
+        }
+
+        // 5. Instantly force UI to refresh (resets background, lives, text, and stickman)
+        // Because the windows are already visible, they will stay visible without replaying the animation.
+        updateUI();
     }
 
-    // Go to home
     private void exitToHome(JPanel main) {
-        // Stop all sounds and timers when exiting to home
         if(soundManager != null) soundManager.stopAllSounds();
         stopS6Timers();
         gameOverTriggered = false;
@@ -428,7 +434,6 @@ public class HangmanView {
             ((MainFrame) frame).showScreen(MainFrame.HOME);
     }
 
-    // Window Panel
     class RetroWindow extends JPanel {
 
         public RetroWindow(String title, JPanel content, int x, int y, int w, int h) {
@@ -437,7 +442,6 @@ public class HangmanView {
             setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
             setBackground(Color.LIGHT_GRAY);
 
-            // Title
             JPanel titleBar = new JPanel(new BorderLayout());
             titleBar.setBackground(new Color(0, 0, 128));
             titleBar.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
@@ -447,7 +451,6 @@ public class HangmanView {
             titleLabel.setForeground(Color.WHITE);
             titleLabel.setFont(new Font("Monospaced", Font.BOLD, 14));
 
-            // X button
             JButton closeBtn = new JButton(" X ");
             closeBtn.setMargin(new Insets(2, 0, 2, 0));
             closeBtn.setFont(new Font("Monospaced", Font.BOLD, 10));
